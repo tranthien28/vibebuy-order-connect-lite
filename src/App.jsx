@@ -1,0 +1,599 @@
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import {
+  Save, Monitor, Smartphone, ArrowLeft, ChevronRight, ChevronLeft, Check,
+  Lock, AlertCircle, LayoutDashboard, Settings, HelpCircle, Zap, BarChart3,
+  ExternalLink, Crown, MessageSquare, Shield
+} from 'lucide-react';
+
+import { CHANNELS, getChannel } from './channels/registry.jsx';
+import SharedAppearanceStep from './channels/shared/AppearanceStep.jsx';
+import SharedDisplayStep from './channels/shared/DisplayStep.jsx';
+import PreviewWidget from './components/PreviewWidget.jsx';
+import ProFeatures from './components/ProFeatures.jsx';
+import MessageTemplateEditor from './components/MessageTemplateEditor.jsx';
+import HelpView from './components/HelpView.jsx';
+import ConversationsView from './components/ConversationsView.jsx';
+import ConversationDetailView from './components/ConversationDetailView.jsx';
+import LicenseView from './components/LicenseView.jsx';
+import ProUpgradeModal from './components/upgrade/ProUpgradeModal.jsx';
+
+// ─── Constants ──────────────────────────────────────────────────
+const i18n = (typeof window !== 'undefined' && window.vibebuyData?.i18n) || {};
+const __ = (key, fallback) => i18n[key] || fallback;
+const STEP_LABELS = ['Channels', 'Appearance', 'Display'];
+const VERSION = 'v1.0.3';
+
+// ─── Helpers ───────────────────────────────────────────────────
+const getUrlParam = (name, fallback) => {
+  if (typeof window === 'undefined') return fallback;
+  return new URLSearchParams(window.location.search).get(name) || fallback;
+};
+
+const calcProgress = (channelId, settings) => {
+  let done = 0;
+  if (!settings) return 0;
+  if (settings[`${channelId}_number`] || settings[`${channelId}_botToken`] || settings[`${channelId}_botUsername`]) done++;
+  if (settings[`${channelId}_buttonText`] || settings[`${channelId}_bgColor`] || settings[`${channelId}_iconUrl`]) done++;
+  if (settings[`${channelId}_wooAutoInject`] !== undefined) done++;
+  return done;
+};
+
+// ─── Sub-Components ───────────────────────────────────────────
+
+const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
+  <aside className="vb-sidebar">
+    <div className="vb-sidebar-logo">
+      <div className="vb-logo-icon"><Zap className="w-4 h-4" /></div>
+      <span className="vb-logo-text">VibeBuy</span>
+    </div>
+    <nav className="vb-sidebar-nav">
+      <button onClick={() => onNavigate('dashboard')} className={`vb-nav-item ${activeTab === 'dashboard' ? 'vb-nav-item--active' : ''}`}>
+        <LayoutDashboard className="w-4 h-4 shrink-0" /> Dashboard
+      </button>
+      <button onClick={() => onNavigate('conversations')} className={`vb-nav-item ${activeTab === 'conversations' ? 'vb-nav-item--active' : ''}`}>
+        <MessageSquare className="w-4 h-4 shrink-0" /> Conversations
+      </button>
+      <button onClick={onUpgrade} className="vb-nav-item vb-nav-item--locked">
+        <BarChart3 className="w-4 h-4 shrink-0" /> Statistics
+        <span className="vb-pro-badge ml-auto">PRO</span>
+      </button>
+      <button onClick={() => onNavigate('templates')} className={`vb-nav-item ${activeTab === 'templates' ? 'vb-nav-item--active' : ''}`}>
+        <MessageSquare className="w-4 h-4 shrink-0" /> Message Templates
+      </button>
+      <button onClick={() => onNavigate('settings')} className={`vb-nav-item ${activeTab === 'settings' ? 'vb-nav-item--active' : ''}`}>
+        <Settings className="w-4 h-4 shrink-0" /> Settings
+      </button>
+      <button onClick={() => onNavigate('license')} className={`vb-nav-item ${activeTab === 'license' ? 'vb-nav-item--active' : ''}`}>
+        <Shield className="w-4 h-4 shrink-0" /> License
+      </button>
+      <button onClick={() => onNavigate('help')} className={`vb-nav-item ${activeTab === 'help' ? 'vb-nav-item--active' : ''}`}>
+        <HelpCircle className="w-4 h-4 shrink-0" /> Help
+      </button>
+    </nav>
+    <div className="vb-sidebar-bottom">
+      <div 
+        className={`vb-version-badge ${!settings.is_pro ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+        onClick={() => !settings.is_pro && onUpgrade()}
+      >
+        <span className="vb-version-dot" />
+        <span className={settings.is_pro ? 'text-amber-600 font-bold' : ''}>
+          {settings.is_pro ? 'VibeBuy Pro' : 'VibeBuy Lite'}
+        </span>
+        <span className="vb-version-num">{VERSION}</span>
+      </div>
+      {!settings.is_pro && (
+        <div className="vb-upgrade-box">
+          <div className="vb-upgrade-box-icon"><Crown className="w-4 h-4" /></div>
+          <p className="vb-upgrade-title">Go Pro</p>
+          <p className="vb-upgrade-desc">Unlock all channels & analytics</p>
+          <button onClick={onUpgrade} className="vb-upgrade-btn">Upgrade Now <ExternalLink className="w-3 h-3" /></button>
+        </div>
+      )}
+    </div>
+</aside>
+);
+
+const Toast = ({ message, desc }) => (
+  <div className="vb-toast-wrap">
+    <div className="vb-toast">
+      <div className="vb-toast-icon"><Check className="w-4 h-4 text-green-500" strokeWidth={3} /></div>
+      <div><p className="vb-toast-title">{message}</p><p className="vb-toast-desc">{desc}</p></div>
+    </div>
+  </div>
+);
+
+const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, handleSave, saving, onUpgrade }) => {
+  const toggleChannel = (channelId) => {
+    const activeChannels = settings.activeChannels || [];
+    const isNowActive = !activeChannels.includes(channelId);
+    const newActive = isNowActive
+      ? [...activeChannels, channelId]
+      : activeChannels.filter(id => id !== channelId);
+    
+    const updatedSettings = { ...settings, activeChannels: newActive };
+    updateSetting('activeChannels', newActive);
+    
+    // Autosave
+    handleSave(updatedSettings);
+  };
+
+  return (
+    <>
+      <div className="vb-page-header">
+        <h1 className="vb-page-title">
+          {activeTab === 'dashboard' && 'Dashboard'}
+          {activeTab === 'templates' && 'Message Templates'}
+          {activeTab === 'conversations' && 'Conversations & Inquiries'}
+          {activeTab === 'settings' && 'Global Settings'}
+          {activeTab === 'help' && 'Help & Tutorials'}
+          {activeTab === 'license' && 'License & Activation'}
+        </h1>
+        <div className="flex items-center gap-1.5">
+          <span 
+            onClick={() => !settings.is_pro && onUpgrade()}
+            className={settings.is_pro ? 'vb-header-version-green' : 'vb-header-version-gray cursor-pointer hover:bg-gray-200 transition-colors'}
+          >
+            {settings.is_pro ? 'VibeBuy Pro' : 'VibeBuy Lite'}
+          </span>
+          <span className="vb-header-version-gray">{VERSION}</span>
+        </div>
+      </div>
+      <div className="vb-content">
+        {activeTab === 'dashboard' && (
+          <>
+            <div className="vb-cards-grid">
+              <div className="vb-card">
+                <div className="vb-card-icon vb-card-icon--green"><Zap className="w-5 h-5 text-green-500" /></div>
+                <p className="vb-card-label">Active Channels</p>
+                <p className="vb-card-value">{settings.activeChannels?.length || 0} / {CHANNELS.length}</p>
+              </div>
+              <div className="vb-card cursor-pointer hover:shadow-md transition-all border border-blue-50 hover:border-blue-100" onClick={() => onNavigate('conversations')}>
+                <div className="vb-card-icon vb-card-icon--blue"><MessageSquare className="w-5 h-5 text-blue-500" /></div>
+                <div className="flex-1">
+                  <p className="vb-card-label">Conversations</p>
+                  <p className="vb-card-value text-blue-600">{settings.totalConnections || 0}</p>
+                </div>
+                <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <ChevronRight className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="vb-card">
+                <div className="vb-card-icon vb-card-icon--red"><AlertCircle className="w-5 h-5 text-red-500" /></div>
+                <p className="vb-card-label">In-Active</p>
+                <p className="vb-card-value vb-card-value--red">{CHANNELS.length - (settings.activeChannels?.length || 0)}</p>
+              </div>
+              <div className="vb-card vb-card--pro cursor-pointer group" onClick={onUpgrade}>
+                <div className="vb-card-pro-circle" />
+                <div className="relative z-10">
+                  <div className="vb-card-icon vb-card-icon--white group-hover:scale-110 transition-transform"><Crown className="w-4 h-4 text-white" /></div>
+                  <p className="vb-card-label vb-card-label--white">Unlock All Features</p>
+                  <p className="vb-card-value vb-card-value--white">GO PRO</p>
+                </div>
+              </div>
+            </div>
+            <div className="vb-section-card">
+              <div className="vb-section-header"><h2 className="vb-section-title">Messaging Engines</h2><p className="vb-section-subtitle">Configure and manage your messaging channels</p></div>
+              <div className="vb-channel-list">
+                {CHANNELS.map(ch => {
+                  const isActive = (settings.activeChannels || []).includes(ch.id);
+                  const progress = ch.pro ? 0 : calcProgress(ch.id, settings);
+                  return (
+                    <div key={ch.id} className={`vb-channel-row ${ch.pro ? 'opacity-70' : ''}`}>
+                      <div className={`vb-channel-icon ${ch.color}`}>{ch.icon}</div>
+                      <div className="vb-channel-info">
+                        <div className="flex items-center gap-2">
+                          <span className="vb-channel-name">{ch.name}</span>
+                          {(!ch.pro || settings.is_pro) ? (
+                            <button 
+                              onClick={() => toggleChannel(ch.id)}
+                              className={`vb-toggle ${isActive ? 'vb-toggle--on' : 'vb-toggle--off'} scale-75 origin-left`}
+                            >
+                              <div className={`vb-toggle-thumb ${isActive ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                            </button>
+                          ) : (
+                            <Lock className="w-3 h-3 text-gray-300" />
+                          )}
+                          <span className={`vb-status-badge ${isActive ? 'vb-status-badge--active' : 'vb-status-badge--inactive'}`}>
+                            {isActive ? 'ACTIVE' : 'IN-ACTIVE'}
+                          </span>
+                        </div>
+                        <p className="vb-channel-desc">{ch.description}</p>
+                      </div>
+                      {(!ch.pro || settings.is_pro) ? (
+                        <div className="vb-channel-actions">
+                          <div className="vb-progress-wrap">
+                            <span className="vb-progress-label">Config</span>
+                            <div className="vb-progress-track"><div className={`vb-progress-fill ${progress === 3 ? 'vb-progress-fill--green' : progress > 0 ? 'vb-progress-fill--amber' : 'vb-progress-fill--red'}`} style={{ width: `${(progress / 3) * 100}%` }} /></div>
+                            <span className="vb-progress-count">{progress}/3</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button className="vb-configure-btn" onClick={() => startConfig(ch.id)}>Configure</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 px-4 cursor-pointer" onClick={onUpgrade}><span className="text-xs text-gray-400 font-medium whitespace-nowrap hover:text-purple-500 transition-colors">PRO Only Feature</span></div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+        {activeTab === 'templates' && (
+          <div className="vb-section-card mb-20">
+            <div className="vb-section-header"><h2 className="vb-section-title">Global Message Template</h2><p className="vb-section-subtitle">Used by all channels by default.</p></div>
+            <div className="p-6">
+              <MessageTemplateEditor value={settings.global_message_template} onChange={(val) => updateSetting('global_message_template', val)} />
+              
+              {/* Floating Footer */}
+              <div className="vb-floating-footer">
+                <button onClick={() => handleSave()} disabled={saving} className="vb-footer-save">
+                  {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />} Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'conversations' && (
+          <ConversationsView onViewDetail={(id) => {
+            setDetailId(id);
+            setActiveTab('conversation-detail');
+          }} />
+        )}
+        {activeTab === 'conversation-detail' && (
+          <ConversationDetailView id={detailId} onBack={() => setActiveTab('conversations')} />
+        )}
+        {activeTab === 'help' && (
+          <HelpView onNavigate={handleNavigate} initialSection={helpContext} />
+        )}
+        {activeTab === 'settings' && (
+          <div className="vb-section-card mb-20">
+            <div className="vb-section-header">
+              <h2 className="vb-section-title">Order Modal & Logic</h2>
+              <p className="vb-section-subtitle">Customize the customer inquiry experience.</p>
+            </div>
+            <div className="p-6 max-w-2xl space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                 <div>
+                    <p className="text-sm font-semibold text-gray-900">Enable Order Modal</p>
+                    <p className="text-[11px] text-gray-500">Show a form before redirecting to chat apps.</p>
+                 </div>
+                 <button 
+                    onClick={() => updateSetting('orderModal_enabled', !settings.orderModal_enabled)}
+                    className={`vb-toggle ${settings.orderModal_enabled ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+                 >
+                    <div className={`vb-toggle-thumb ${settings.orderModal_enabled ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                 </button>
+              </div>
+ 
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                 <div>
+                    <p className="text-sm font-semibold text-gray-900">Auto-fill Customer Profile</p>
+                    <p className="text-[11px] text-gray-500">Predict names and emails for logged-in users.</p>
+                 </div>
+                 <button 
+                    onClick={() => updateSetting('orderModal_autoFill', !settings.orderModal_autoFill)}
+                    className={`vb-toggle ${settings.orderModal_autoFill ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+                 >
+                    <div className={`vb-toggle-thumb ${settings.orderModal_autoFill ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                 </button>
+              </div>
+ 
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                 <div>
+                    <p className="text-sm font-semibold text-gray-900">Skip Modal After First Submission</p>
+                    <p className="text-[11px] text-gray-500">Don't show the form again if already sent.</p>
+                 </div>
+                 <button 
+                    onClick={() => updateSetting('orderModal_autoOff', !settings.orderModal_autoOff)}
+                    className={`vb-toggle ${settings.orderModal_autoOff ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+                 >
+                    <div className={`vb-toggle-thumb ${settings.orderModal_autoOff ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                 </button>
+              </div>
+
+              {/* Floating Footer */}
+              <div className="vb-floating-footer">
+                <button onClick={() => handleSave()} disabled={saving} className="vb-footer-save">
+                  {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />} Save Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === 'help' && (
+          <HelpView onNavigate={(tab) => handleNavigate(tab)} />
+        )}
+      </div>
+    </>
+  );
+};
+
+// ConversationDetailView is already imported at the top.
+
+// ─── Main App ──────────────────────────────────────────────────
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState(() => getUrlParam('tab', 'dashboard'));
+  const [currentStep, setCurrentStep] = useState(() => parseInt(getUrlParam('step', '0'), 10) || 0);
+  const [editChannel, setEditChannel] = useState(() => getUrlParam('channel', 'whatsapp'));
+  const [previewMode, setPreviewMode] = useState('mobile');
+  const [detailId, setDetailId] = useState(null);
+  const [settings, setSettings] = useState({ 
+    activeChannels: [],
+    global_message_template: '' 
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [helpContext, setHelpContext] = useState(null);
+
+  const navigateToHelp = (section = null) => {
+    setHelpContext(section);
+    setActiveTab('help');
+    setCurrentStep(0);
+  };
+
+  useEffect(() => {
+    if (!window.vibebuyData) { setLoading(false); return; }
+    fetch(`${window.vibebuyData.apiUrl}settings`, { headers: { 'X-WP-Nonce': window.vibebuyData.nonce } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setSettings(prev => ({ ...prev, ...data })); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location);
+    
+    // Always keep page=vibebuy for WP stability
+    url.searchParams.set('page', 'vibebuy');
+    url.searchParams.set('tab', activeTab);
+    
+    if (activeTab === 'dashboard' && currentStep > 0) {
+      url.searchParams.set('channel', editChannel);
+      url.searchParams.set('step', currentStep);
+    } else {
+      url.searchParams.delete('channel');
+      url.searchParams.delete('step');
+    }
+    
+    window.history.pushState({}, '', url);
+  }, [activeTab, currentStep, editChannel]);
+
+  useEffect(() => {
+    const root = document.getElementById('vibebuy-admin-root');
+    if (root) {
+      const parent = root.closest('#wpbody-content');
+      if (parent) { parent.style.padding = '0'; parent.style.backgroundColor = '#f5f6fa'; }
+      const wrap = root.closest('.wrap');
+      if (wrap) wrap.style.margin = '0';
+    }
+  }, []);
+
+  const updateSetting = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleNavigate = (tab) => {
+    setActiveTab(tab);
+    setCurrentStep(0);
+  };
+
+  const startConfig = (id) => {
+    setEditChannel(id);
+    setCurrentStep(1);
+    setActiveTab('dashboard');
+  };
+
+  const handleSave = async (manualSettings = null) => {
+    const settingsToSave = manualSettings || settings;
+    setSaving(true);
+    try {
+      const res = await fetch(`${window.vibebuyData.apiUrl}settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.vibebuyData.nonce },
+        body: JSON.stringify(settingsToSave),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setSettings(prev => ({ ...prev, ...json.data }));
+        }
+        setToast({ message: 'Settings Saved', desc: 'Success!' });
+        setTimeout(() => { 
+            setToast(null); 
+            // Close wizard after save ONLY if they are on Step 3
+            if (currentStep === 3) setCurrentStep(0);
+        }, 2000);
+      }
+    } catch (e) {
+      console.error('Save error:', e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="vb-loading">
+      <div className="vb-spinner" />
+      <p>Loading Dashboard...</p>
+    </div>
+  );
+
+  const channel = getChannel(editChannel);
+  const StepComponent = {
+    1: channel.ConfigStep,
+    2: channel.AppearanceStep ?? SharedAppearanceStep,
+    3: channel.DisplayStep ?? SharedDisplayStep
+  }[currentStep];
+
+  return (
+    <div className="vb-shell">
+      <Sidebar activeTab={activeTab} onNavigate={handleNavigate} onUpgrade={() => setShowUpgradeModal(true)} settings={settings} />
+      <div className="vb-main">
+        {currentStep === 0 ? (
+          <>
+            {activeTab === 'license' ? (
+              <LicenseView 
+                settings={settings} 
+                onUpdateSettings={(newSets) => {
+                  setSettings(newSets);
+                  handleNavigate('dashboard');
+                } }
+                onToast={(title, desc, type) => setToast({ message: title, desc, type })}
+              />
+            ) : (
+              <DashboardContent
+                activeTab={activeTab}
+                settings={settings}
+                updateSetting={updateSetting}
+                startConfig={startConfig}
+                handleSave={handleSave}
+                saving={saving}
+                onUpgrade={() => setShowUpgradeModal(true)}
+                onHelp={navigateToHelp}
+              />
+            )}
+          </>
+        ) : (
+          <div className="vb-wizard-inner">
+            <header className="vb-wizard-header">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setCurrentStep(0)} className="vb-back-btn">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </button>
+                <div className="w-px h-5 bg-gray-200" />
+                <div className="vb-wizard-title-group">
+                  <div className="vb-wizard-step-badge">{currentStep}</div>
+                  <h1 className="vb-wizard-title">{STEP_LABELS[currentStep - 1]}</h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="vb-header-version-green">VibeBuy Lite</span>
+                <span className="vb-header-version-gray">{VERSION}</span>
+              </div>
+            </header>
+
+            <div className="vb-step-bar">
+              {STEP_LABELS.map((label, i) => {
+                const stepNum = i + 1;
+                return (
+                  <React.Fragment key={label}>
+                    <button
+                      onClick={() => setCurrentStep(stepNum)}
+                      className={`vb-step-pill ${currentStep === stepNum ? 'vb-step-pill--active' : currentStep > stepNum ? 'vb-step-pill--done' : 'vb-step-pill--idle'}`}
+                    >
+                      <span className={`vb-step-num ${currentStep === stepNum ? 'vb-step-num--active' : currentStep > stepNum ? 'vb-step-num--done' : 'vb-step-num--idle'}`}>
+                        {currentStep > stepNum ? <Check className="w-3 h-3" strokeWidth={3} /> : stepNum}
+                      </span>
+                      {label}
+                    </button>
+                    {i < STEP_LABELS.length - 1 && <div className="vb-step-dash" />}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            <main className="vb-wizard-body">
+              <div className="vb-form-pane">
+                <div className="vb-form-inner">
+                  <div className="vb-form-card">
+                    {StepComponent ? (
+                      <StepComponent
+                        channel={channel}
+                        settings={settings}
+                        updateSetting={updateSetting}
+                        setCurrentStep={setCurrentStep}
+                        onNavigate={handleNavigate}
+                        onHelp={navigateToHelp}
+                      />
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="vb-spinner-sm mx-auto mb-4" />
+                        <p className="text-gray-400 text-sm">Loading Step...</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="vb-preview-pane">
+                <div className="vb-preview-header">
+                  <h3 className="vb-preview-title">Live Preview</h3>
+                  <div className="vb-preview-toggle">
+                    <button
+                      onClick={() => setPreviewMode('mobile')}
+                      className={`vb-preview-toggle-btn ${previewMode === 'mobile' ? 'vb-preview-toggle-btn--active' : ''}`}
+                    >
+                      <Smartphone className="w-4 h-4" /> Mobile
+                    </button>
+                    <button
+                      onClick={() => setPreviewMode('desktop')}
+                      className={`vb-preview-toggle-btn ${previewMode === 'desktop' ? 'vb-preview-toggle-btn--active' : ''}`}
+                    >
+                      <Monitor className="w-4 h-4" /> Desktop
+                    </button>
+                  </div>
+                </div>
+                <div className="vb-preview-body">
+                  <PreviewWidget settings={settings} previewMode={previewMode} editChannel={editChannel} />
+                </div>
+              </div>
+            </main>
+
+            <footer className="vb-wizard-footer">
+              <button
+                onClick={() => setCurrentStep(currentStep > 1 ? currentStep - 1 : 0)}
+                className="vb-footer-back"
+              >
+                <ChevronLeft className="w-4 h-4" /> Back
+              </button>
+              
+              <div className="flex items-center gap-4">
+                <span className="vb-footer-step hidden md:block">Step {currentStep} of {STEP_LABELS.length}</span>
+                
+                <div className="flex gap-2">
+                    {currentStep < 3 ? (
+                      <button
+                        onClick={() => setCurrentStep(currentStep + 1)}
+                        className="vb-footer-next"
+                      >
+                        Next Step <ChevronRight className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSave()}
+                        disabled={saving}
+                        className="vb-footer-save"
+                      >
+                        {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />}
+                        Save Settings
+                      </button>
+                    )}
+                </div>
+              </div>
+            </footer>
+          </div>
+        )}
+      </div>
+
+      <ProUpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+      />
+      
+      {toast && <Toast {...toast} />}
+    </div>
+  );
+};
+
+const root = document.getElementById('vibebuy-admin-root');
+if (root) createRoot(root).render(<App />);
+
+export default App;

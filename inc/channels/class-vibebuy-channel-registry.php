@@ -1,0 +1,78 @@
+<?php
+/**
+ * VibeBuy Channel Registry
+ *
+ * Singleton that holds all registered channels.
+ * Lite registers WhatsApp + Telegram.
+ * Pro plugin calls VibeBuy_Channel_Registry::register() to add more.
+ *
+ * @package VibeBuy
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class VibeBuy_Channel_Registry {
+
+	/** @var VibeBuy_Channel_Base[] */
+	private static array $channels = [];
+
+	private function __construct() {}
+
+	/**
+	 * Register a channel. Called by Lite and Pro plugins.
+	 * Pro plugin example:
+	 *   add_action('vibebuy_register_channels', function() {
+	 *       VibeBuy_Channel_Registry::register(new VibeBuy_Channel_Zalo());
+	 *   });
+	 * @param VibeBuy_Channel_Base $channel
+	 */
+	public static function register( VibeBuy_Channel_Base $channel ): void {
+		self::$channels[ $channel->get_id() ] = $channel;
+	}
+
+	/**
+	 * Get all registered channels.
+	 * @return VibeBuy_Channel_Base[]
+	 */
+	public static function all(): array {
+		return self::$channels;
+	}
+
+	/**
+	 * Get a specific channel by ID.
+	 * @param string $id
+	 * @return VibeBuy_Channel_Base|null
+	 */
+	public static function get( string $id ): ?VibeBuy_Channel_Base {
+		return self::$channels[ $id ] ?? null;
+	}
+
+	/**
+	 * Get aggregated settings schema from all registered channels.
+	 * Used by API to know which params to accept.
+	 * @return array ['setting_key' => 'sanitize_callback']
+	 */
+	public static function get_all_settings_schema(): array {
+		$schema = [
+			// Global settings (not channel-specific)
+			'activeChannels' => 'sanitize_text_field', // array handled separately
+			'enabled'        => 'rest_sanitize_boolean',
+		];
+
+		foreach ( self::$channels as $channel ) {
+			$schema = array_merge( $schema, $channel->get_settings_schema() );
+		}
+
+		return $schema;
+	}
+
+	/**
+	 * Initialize: fire action so Pro plugins can register their channels.
+	 * Call this after all Lite channels are registered.
+	 */
+	public static function init(): void {
+		do_action( 'vibebuy_register_channels' );
+	}
+}
