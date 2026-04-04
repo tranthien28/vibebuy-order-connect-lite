@@ -57,6 +57,18 @@ function vibebuy_init() {
 	$loader = new VibeBuy_Loader();
 	$loader->init();
 }
+/**
+ * Add "Get Pro" link to the plugin action links.
+ */
+function vibebuy_plugin_action_links( $links ) {
+	if ( ! vibebuy_is_pro() ) {
+		$get_pro_link = '<a href="https://vibebuy.com" target="_blank" style="color: #2271b1; font-weight: bold;">' . __( 'Get Pro', 'vibebuy-order-connect-lite' ) . '</a>';
+		array_unshift( $links, $get_pro_link );
+	}
+	return $links;
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'vibebuy_plugin_action_links' );
+
 add_action( 'plugins_loaded', 'vibebuy_init' );
 
 /**
