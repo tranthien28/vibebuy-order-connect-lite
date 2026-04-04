@@ -4,28 +4,28 @@ import { Check, Crown, Zap, BarChart3, MousePointer2, Sparkles } from 'lucide-re
 const BENEFITS = [
   { 
     icon: <Crown className="w-4 h-4 text-amber-500" />, 
-    title: 'All Channels Unlocked', 
-    desc: 'WhatsApp, Telegram, Messenger, Zalo, and more.' 
+    title: '11+ Premium Channels', 
+    desc: 'Unlock Zalo, Messenger, TikTok, Instagram, and more.' 
   },
   { 
     icon: <BarChart3 className="w-4 h-4 text-blue-500" />, 
     title: 'Advanced Analytics', 
-    desc: 'Track every click, conversion, and customer journey.' 
+    desc: 'Track every click, view, and conversion rate.' 
   },
   { 
     icon: <MousePointer2 className="w-4 h-4 text-purple-500" />, 
-    title: 'Smart Agent Picker', 
-    desc: 'Automatically route customers to available agents.' 
+    title: 'Export & Order Tools', 
+    desc: 'Export leads to CSV and create WooCommerce orders.' 
   },
   { 
     icon: <Sparkles className="w-4 h-4 text-pink-500" />, 
-    title: 'Premium Animations', 
-    desc: 'Luxury floating bubbles and high-end entry effects.' 
+    title: 'Pro Customization', 
+    desc: 'Custom icons, premium themes, and no branding.' 
   },
   { 
     icon: <Zap className="w-4 h-4 text-green-500" />, 
     title: 'Priority Support', 
-    desc: 'Get help via Priority WhatsApp ticket in < 2 hours.' 
+    desc: '24/7 dedicated assistance with < 2h response.' 
   },
 ];
 
@@ -34,7 +34,7 @@ const BenefitList = () => {
     <div className="vb-benefit-list">
       <div className="flex items-center gap-2 mb-3">
         <Crown className="w-5 h-5 text-amber-500 fill-amber-500" />
-        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Premium Features</h3>
+        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Pro Features</h3>
       </div>
       
       <div className="space-y-2">

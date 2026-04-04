@@ -12,11 +12,11 @@ const PricingTable = () => {
             <p className="text-xl font-black text-gray-400">$0</p>
             <p className="text-[9px] text-gray-400">Forever Free</p>
           </div>
-          <div className="px-4 pb-4 space-y-2">
-            <FeatureRow label="Single Channel" active />
-            <FeatureRow label="Basic Bubble" active />
-            <FeatureRow label="Standard Templates" active />
-            <FeatureRow label="Advanced Controls" disabled />
+          <div className="px-4 pb-4 space-y-2 text-left">
+            <FeatureRow label="3 Lite Channels" active />
+            <FeatureRow label="Standard Inquiries" active />
+            <FeatureRow label="Global Template" active />
+            <FeatureRow label="Analytics & Export" disabled />
           </div>
         </div>
 
@@ -35,11 +35,11 @@ const PricingTable = () => {
             <p className="text-[9px] text-purple-400">One-time Access</p>
           </div>
           
-          <div className="px-4 pb-4 space-y-2">
-            <FeatureRow label="All Channels" active pro />
-            <FeatureRow label="Smart Agent Picker" active pro />
-            <FeatureRow label="Custom Styles" active pro />
-            <FeatureRow label="Full Analytics" active pro />
+          <div className="px-4 pb-4 space-y-2 text-left">
+            <FeatureRow label="11+ Premium Channels" active pro />
+            <FeatureRow label="Advanced Analytics" active pro />
+            <FeatureRow label="CSV Export & Orders" active pro />
+            <FeatureRow label="Priority Support" active pro />
           </div>
         </div>
       </div>

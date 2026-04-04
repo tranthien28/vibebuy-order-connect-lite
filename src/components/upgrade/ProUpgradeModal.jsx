@@ -37,7 +37,7 @@ const ProUpgradeModal = ({ isOpen, onClose }) => {
           <div className="flex-1 p-6 text-center flex flex-col justify-between">
             <div>
               <div className="inline-block px-3 py-1 bg-purple-100 rounded-full mb-2">
-                <p className="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">Premium Upgrade</p>
+                <p className="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">VibeBuy Pro</p>
               </div>
               <h2 className="text-2xl font-black text-gray-900 mb-1">Modernize Your Store</h2>
               <p className="text-[11px] text-gray-500 mb-4 px-6">
