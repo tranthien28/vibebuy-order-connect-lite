@@ -69,6 +69,14 @@ class VibeBuy_API {
 				'permission_callback' => array( $this, 'check_permission' ),
 			),
 		) );
+
+		register_rest_route( 'vibebuy/v1', '/test-notification', array(
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'test_notification' ),
+				'permission_callback' => array( $this, 'check_permission' ),
+			),
+		) );
 	}
 
 	public function check_permission() {
@@ -125,6 +133,9 @@ class VibeBuy_API {
 		// --- Channel-specific settings (dynamic via registry) ---
 		// Get all known keys + sanitizers from registered channels
 		$schema = VibeBuy_Channel_Registry::get_all_settings_schema();
+		
+		// PRO: Add global pro settings to schema
+		$schema = apply_filters( 'vibebuy_pro_settings_schema', $schema );
 
 		foreach ( $schema as $key => $sanitizer ) {
 			if ( $key === 'activeChannels' || $key === 'enabled' ) {
@@ -254,16 +265,16 @@ class VibeBuy_API {
 		$params = $request->get_json_params();
 
 		// Basic validation
-		if ( empty( $params['customer_name'] ) || empty( $params['customer_email'] ) ) {
-			return new WP_Error( 'missing_fields', __( 'Name and Email are required.', 'vibebuy-order-connect-lite' ), array( 'status' => 400 ) );
+		if ( empty( $params['customer_name'] ) ) {
+			return new WP_Error( 'missing_fields', __( 'Name is required.', 'vibebuy-order-connect-lite' ), array( 'status' => 400 ) );
 		}
 
 		$data = array(
 			'user_id'          => get_current_user_id(),
-			'channel_id'       => $params['channel_id'] ?? '',
+			'channel_id'       => $params['channel_id'] ?? 'global', // 'global' represents the new single-button flow
 			'product_id'       => $params['product_id'] ?? 0,
 			'customer_name'    => $params['customer_name'],
-			'customer_email'   => $params['customer_email'],
+			'customer_email'   => $params['customer_email'] ?? '',
 			'customer_phone'   => $params['customer_phone'] ?? '',
 			'product_qty'      => $params['product_qty'] ?? 1,
 			'customer_message' => $params['customer_message'] ?? '',
@@ -278,8 +289,13 @@ class VibeBuy_API {
 			return new WP_Error( 'save_failed', __( 'Failed to save inquiry.', 'vibebuy-order-connect-lite' ), array( 'status' => 500 ) );
 		}
 
-		// Trigger notifications server-side
-		$this->notify_channels( $data['channel_id'], $rendered_message );
+		// Trigger notifications server-side for ALL active channels
+		$settings = get_option( 'vibebuy_lite_settings', array() );
+		$active_channels = $settings['activeChannels'] ?? array();
+		
+		foreach ( $active_channels as $ch_id ) {
+			$this->notify_channels( $ch_id, $rendered_message );
+		}
 
 		return rest_ensure_response( array( 'success' => true ) );
 	}
@@ -323,7 +339,8 @@ class VibeBuy_API {
 			'{{billing_company}}'   => $data['customer_message'],
 			'{{product_name}}'      => $product_name,
 			'{{product_id}}'        => $product_id,
-			'{{product_sku}}'       => $product_sku,
+			'{{product_sku}}'       => '{{product_sku}}',
+			'{{product_variation}}' => '{{product_variation}}',
 			'{{product_qty}}'       => $data['product_qty'] ?? 1,
 			'{{product_price}}'     => $product_price,
 			'{{product_sale_price}}' => $sale_price,
@@ -384,5 +401,53 @@ class VibeBuy_API {
 		}
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Test notification for a specific channel
+	 */
+	public function test_notification( WP_REST_Request $request ) {
+		$params = $request->get_json_params();
+		$channel_id = isset( $params['channel_id'] ) ? sanitize_text_field( $params['channel_id'] ) : '';
+		
+		if ( empty( $channel_id ) ) {
+			return new WP_Error( 'missing_channel', 'Channel ID is required', array( 'status' => 400 ) );
+		}
+
+		$channel = VibeBuy_Channel_Registry::get( $channel_id );
+		if ( ! $channel ) {
+			return new WP_Error( 'invalid_channel', 'Invalid channel identifier', array( 'status' => 400 ) );
+		}
+
+		// Ensure we have a send_message method
+		if ( ! method_exists( $channel, 'send_message' ) ) {
+			return new WP_Error( 'no_api_support', 'This channel does not support server-side notifications in Lite version.', array( 'status' => 400 ) );
+		}
+
+		$settings = get_option( 'vibebuy_lite_settings', array() );
+		$test_data = array(
+			'customer_name'    => 'VibeBuy Test User',
+			'customer_phone'   => '0901234567',
+			'customer_message' => 'This is a test notification from VibeBuy.',
+			'product_name'     => 'Test Product',
+			'product_url'      => home_url(),
+			'product_price'    => '100.000',
+			'product_qty'      => 1
+		);
+
+		$message = $this->render_template_message( $test_data );
+		$result = $channel->send_message( $settings, $message );
+
+		if ( is_wp_error( $result ) ) {
+			return rest_ensure_response( array(
+				'success' => false,
+				'message' => $result->get_error_message()
+			) );
+		}
+
+		return rest_ensure_response( array(
+			'success' => true,
+			'message' => 'Test message sent successfully!'
+		) );
 	}
 }

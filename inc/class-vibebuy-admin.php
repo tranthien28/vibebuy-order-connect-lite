@@ -67,38 +67,37 @@ class VibeBuy_Admin {
 			return;
 		}
 
-		$asset = VibeBuy_Loader::get_vite_asset( 'src/App.jsx' );
+		wp_enqueue_script(
+			'vibebuy-admin-js',
+			VIBEBUY_PLUGIN_URL . 'assets/js/admin.js',
+			array( 'wp-element' ),
+			time(), // Use timestamp for dev; can be VIBEBUY_VERSION later
+			true
+		);
 
-		if ( $asset ) {
-			wp_enqueue_script(
-				'vibebuy-admin-js',
-				VIBEBUY_PLUGIN_URL . 'assets/' . $asset['file'],
-				array( 'wp-element' ),
-				VIBEBUY_VERSION,
-				true
-			);
+		// Load static CSS directly from assets (no build required)
+		$css_path = VIBEBUY_PLUGIN_DIR . 'assets/css/index.css';
+		$css_ver  = file_exists( $css_path ) ? filemtime( $css_path ) : VIBEBUY_VERSION;
 
-			// Load static CSS directly from assets (no build required)
-			wp_enqueue_style(
-				'vibebuy-admin-static-css',
-				VIBEBUY_PLUGIN_URL . 'assets/css/index.css',
-				array(),
-				filemtime( VIBEBUY_PLUGIN_DIR . 'assets/css/index.css' )
-			);
+		wp_enqueue_style(
+			'vibebuy-admin-static-css',
+			VIBEBUY_PLUGIN_URL . 'assets/css/index.css',
+			array(),
+			$css_ver
+		);
 
-			// Localize script for API and nonces.
-			wp_localize_script( 'vibebuy-admin-js', 'vibebuyData', array(
-				'apiUrl'  => esc_url_raw( rest_url( 'vibebuy/v1/' ) ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-				'homeUrl' => home_url( '/' ),
-				'locale'  => determine_locale(),
-				'lang'    => defined( 'ICL_LANGUAGE_CODE' ) ? ICL_LANGUAGE_CODE : '',
-				'i18n'    => $this->get_i18n_strings(),
-			) );
+		// Localize script for API and nonces.
+		wp_localize_script( 'vibebuy-admin-js', 'vibebuyData', array(
+			'apiUrl'  => esc_url_raw( rest_url( 'vibebuy/v1/' ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'homeUrl' => home_url( '/' ),
+			'locale'  => determine_locale(),
+			'lang'    => defined( 'ICL_LANGUAGE_CODE' ) ? ICL_LANGUAGE_CODE : '',
+			'i18n'    => $this->get_i18n_strings(),
+		) );
 
-			if ( function_exists( 'wp_set_script_translations' ) ) {
-				wp_set_script_translations( 'vibebuy-admin-js', 'vibebuy-order-connect-lite', VIBEBUY_PLUGIN_DIR . 'languages' );
-			}
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'vibebuy-admin-js', 'vibebuy-order-connect-lite', VIBEBUY_PLUGIN_DIR . 'languages' );
 		}
 	}
 

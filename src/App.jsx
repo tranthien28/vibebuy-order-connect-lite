@@ -7,21 +7,20 @@ import {
 } from 'lucide-react';
 
 import { CHANNELS, getChannel } from './channels/registry.jsx';
-import SharedAppearanceStep from './channels/shared/AppearanceStep.jsx';
-import SharedDisplayStep from './channels/shared/DisplayStep.jsx';
 import PreviewWidget from './components/PreviewWidget.jsx';
-import ProFeatures from './components/ProFeatures.jsx';
 import MessageTemplateEditor from './components/MessageTemplateEditor.jsx';
 import HelpView from './components/HelpView.jsx';
 import ConversationsView from './components/ConversationsView.jsx';
 import ConversationDetailView from './components/ConversationDetailView.jsx';
 import LicenseView from './components/LicenseView.jsx';
 import ProUpgradeModal from './components/upgrade/ProUpgradeModal.jsx';
+import GlobalSettingsView from './components/GlobalSettingsView.jsx';
+import AnalyticsView from './components/AnalyticsView.jsx';
 
 // ─── Constants ──────────────────────────────────────────────────
 const i18n = (typeof window !== 'undefined' && window.vibebuyData?.i18n) || {};
 const __ = (key, fallback) => i18n[key] || fallback;
-const STEP_LABELS = ['Channels', 'Appearance', 'Display'];
+const STEP_LABELS = ['Connection'];
 const VERSION = 'v1.0.3';
 
 // ─── Helpers ───────────────────────────────────────────────────
@@ -52,17 +51,20 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
         <LayoutDashboard className="w-4 h-4 shrink-0" /> Dashboard
       </button>
       <button onClick={() => onNavigate('conversations')} className={`vb-nav-item ${activeTab === 'conversations' ? 'vb-nav-item--active' : ''}`}>
-        <MessageSquare className="w-4 h-4 shrink-0" /> Conversations
+        <MessageSquare className="w-4 h-4 shrink-0" /> Inquiries
       </button>
-      <button onClick={onUpgrade} className="vb-nav-item vb-nav-item--locked">
+      <button 
+        onClick={() => settings.is_pro ? onNavigate('analytics') : onUpgrade()} 
+        className={`vb-nav-item ${activeTab === 'analytics' ? 'vb-nav-item--active' : ''} ${!settings.is_pro ? 'vb-nav-item--locked' : ''}`}
+      >
         <BarChart3 className="w-4 h-4 shrink-0" /> Statistics
-        <span className="vb-pro-badge ml-auto">PRO</span>
+        {!settings.is_pro && <span className="vb-pro-badge ml-auto">PRO</span>}
       </button>
       <button onClick={() => onNavigate('templates')} className={`vb-nav-item ${activeTab === 'templates' ? 'vb-nav-item--active' : ''}`}>
         <MessageSquare className="w-4 h-4 shrink-0" /> Message Templates
       </button>
       <button onClick={() => onNavigate('settings')} className={`vb-nav-item ${activeTab === 'settings' ? 'vb-nav-item--active' : ''}`}>
-        <Settings className="w-4 h-4 shrink-0" /> Settings
+        <Settings className="w-4 h-4 shrink-0" /> Global Settings
       </button>
       <button onClick={() => onNavigate('license')} className={`vb-nav-item ${activeTab === 'license' ? 'vb-nav-item--active' : ''}`}>
         <Shield className="w-4 h-4 shrink-0" /> License
@@ -103,13 +105,19 @@ const Toast = ({ message, desc }) => (
   </div>
 );
 
-const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, handleSave, saving, onUpgrade }) => {
+const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, handleSave, saving, onUpgrade, onNavigate, onViewDetail, detailId, helpContext }) => {
   const toggleChannel = (channelId) => {
     const activeChannels = settings.activeChannels || [];
     const isNowActive = !activeChannels.includes(channelId);
-    const newActive = isNowActive
-      ? [...activeChannels, channelId]
-      : activeChannels.filter(id => id !== channelId);
+    
+    let newActive;
+    if (settings.is_pro) {
+      newActive = isNowActive
+        ? [...activeChannels, channelId]
+        : activeChannels.filter(id => id !== channelId);
+    } else {
+      newActive = isNowActive ? [channelId] : [];
+    }
     
     const updatedSettings = { ...settings, activeChannels: newActive };
     updateSetting('activeChannels', newActive);
@@ -124,7 +132,8 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
         <h1 className="vb-page-title">
           {activeTab === 'dashboard' && 'Dashboard'}
           {activeTab === 'templates' && 'Message Templates'}
-          {activeTab === 'conversations' && 'Conversations & Inquiries'}
+          {activeTab === 'conversations' && 'Leads & Inquiries'}
+          {activeTab === 'analytics' && 'Performance Analytics'}
           {activeTab === 'settings' && 'Global Settings'}
           {activeTab === 'help' && 'Help & Tutorials'}
           {activeTab === 'license' && 'License & Activation'}
@@ -151,7 +160,7 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
               <div className="vb-card cursor-pointer hover:shadow-md transition-all border border-blue-50 hover:border-blue-100" onClick={() => onNavigate('conversations')}>
                 <div className="vb-card-icon vb-card-icon--blue"><MessageSquare className="w-5 h-5 text-blue-500" /></div>
                 <div className="flex-1">
-                  <p className="vb-card-label">Conversations</p>
+                  <p className="vb-card-label">Inquiries</p>
                   <p className="vb-card-value text-blue-600">{settings.totalConnections || 0}</p>
                 </div>
                 <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -160,26 +169,29 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
               </div>
               <div className="vb-card">
                 <div className="vb-card-icon vb-card-icon--red"><AlertCircle className="w-5 h-5 text-red-500" /></div>
-                <p className="vb-card-label">In-Active</p>
+                <p className="vb-card-label">Inactive</p>
                 <p className="vb-card-value vb-card-value--red">{CHANNELS.length - (settings.activeChannels?.length || 0)}</p>
               </div>
-              <div className="vb-card vb-card--pro cursor-pointer group" onClick={onUpgrade}>
-                <div className="vb-card-pro-circle" />
-                <div className="relative z-10">
-                  <div className="vb-card-icon vb-card-icon--white group-hover:scale-110 transition-transform"><Crown className="w-4 h-4 text-white" /></div>
-                  <p className="vb-card-label vb-card-label--white">Unlock All Features</p>
-                  <p className="vb-card-value vb-card-value--white">GO PRO</p>
+              {!settings.is_pro && (
+                <div className="vb-card vb-card--pro cursor-pointer group" onClick={onUpgrade}>
+                  <div className="vb-card-pro-circle" />
+                  <div className="relative z-10">
+                    <div className="vb-card-icon vb-card-icon--white group-hover:scale-110 transition-transform"><Crown className="w-4 h-4 text-white" /></div>
+                    <p className="vb-card-label vb-card-label--white">Unlock All Features</p>
+                    <p className="vb-card-value vb-card-value--white">GO PRO</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <div className="vb-section-card">
               <div className="vb-section-header"><h2 className="vb-section-title">Messaging Engines</h2><p className="vb-section-subtitle">Configure and manage your messaging channels</p></div>
               <div className="vb-channel-list">
                 {CHANNELS.map(ch => {
                   const isActive = (settings.activeChannels || []).includes(ch.id);
+                  const isLocked = ch.pro && !settings.is_pro;
                   const progress = ch.pro ? 0 : calcProgress(ch.id, settings);
                   return (
-                    <div key={ch.id} className={`vb-channel-row ${ch.pro ? 'opacity-70' : ''}`}>
+                    <div key={ch.id} className={`vb-channel-row ${isLocked ? 'opacity-70 grayscale' : ''}`}>
                       <div className={`vb-channel-icon ${ch.color}`}>{ch.icon}</div>
                       <div className="vb-channel-info">
                         <div className="flex items-center gap-2">
@@ -201,18 +213,11 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
                         <p className="vb-channel-desc">{ch.description}</p>
                       </div>
                       {(!ch.pro || settings.is_pro) ? (
-                        <div className="vb-channel-actions">
-                          <div className="vb-progress-wrap">
-                            <span className="vb-progress-label">Config</span>
-                            <div className="vb-progress-track"><div className={`vb-progress-fill ${progress === 3 ? 'vb-progress-fill--green' : progress > 0 ? 'vb-progress-fill--amber' : 'vb-progress-fill--red'}`} style={{ width: `${(progress / 3) * 100}%` }} /></div>
-                            <span className="vb-progress-count">{progress}/3</span>
-                          </div>
                           <div className="flex gap-2">
                             <button className="vb-configure-btn" onClick={() => startConfig(ch.id)}>Configure</button>
                           </div>
-                        </div>
                       ) : (
-                        <div className="flex items-center gap-2 px-4 cursor-pointer" onClick={onUpgrade}><span className="text-xs text-gray-400 font-medium whitespace-nowrap hover:text-purple-500 transition-colors">PRO Only Feature</span></div>
+                        <div className="flex items-center gap-2 px-4 cursor-pointer" onClick={onUpgrade}><span className="text-xs text-gray-400 font-medium whitespace-nowrap hover:text-purple-500 transition-colors">Pro Feature</span></div>
                       )}
                     </div>
                   );
@@ -225,7 +230,11 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
           <div className="vb-section-card mb-20">
             <div className="vb-section-header"><h2 className="vb-section-title">Global Message Template</h2><p className="vb-section-subtitle">Used by all channels by default.</p></div>
             <div className="p-6">
-              <MessageTemplateEditor value={settings.global_message_template} onChange={(val) => updateSetting('global_message_template', val)} />
+              <MessageTemplateEditor 
+                value={settings.global_message_template} 
+                onChange={(val) => updateSetting('global_message_template', val)} 
+                isPro={settings.is_pro}
+              />
               
               {/* Floating Footer */}
               <div className="vb-floating-footer">
@@ -237,74 +246,24 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
           </div>
         )}
         {activeTab === 'conversations' && (
-          <ConversationsView onViewDetail={(id) => {
-            setDetailId(id);
-            setActiveTab('conversation-detail');
-          }} />
+          <ConversationsView settings={settings} onViewDetail={onViewDetail} />
+        )}
+        {activeTab === 'analytics' && (
+          <AnalyticsView settings={settings} />
         )}
         {activeTab === 'conversation-detail' && (
-          <ConversationDetailView id={detailId} onBack={() => setActiveTab('conversations')} />
+          <ConversationDetailView id={detailId} onBack={() => onNavigate('conversations')} isPro={settings.is_pro} />
         )}
         {activeTab === 'help' && (
-          <HelpView onNavigate={handleNavigate} initialSection={helpContext} />
+          <HelpView onNavigate={onNavigate} initialSection={helpContext} />
         )}
         {activeTab === 'settings' && (
-          <div className="vb-section-card mb-20">
-            <div className="vb-section-header">
-              <h2 className="vb-section-title">Order Modal & Logic</h2>
-              <p className="vb-section-subtitle">Customize the customer inquiry experience.</p>
-            </div>
-            <div className="p-6 max-w-2xl space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                 <div>
-                    <p className="text-sm font-semibold text-gray-900">Enable Order Modal</p>
-                    <p className="text-[11px] text-gray-500">Show a form before redirecting to chat apps.</p>
-                 </div>
-                 <button 
-                    onClick={() => updateSetting('orderModal_enabled', !settings.orderModal_enabled)}
-                    className={`vb-toggle ${settings.orderModal_enabled ? 'vb-toggle--on' : 'vb-toggle--off'}`}
-                 >
-                    <div className={`vb-toggle-thumb ${settings.orderModal_enabled ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
-                 </button>
-              </div>
- 
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                 <div>
-                    <p className="text-sm font-semibold text-gray-900">Auto-fill Customer Profile</p>
-                    <p className="text-[11px] text-gray-500">Predict names and emails for logged-in users.</p>
-                 </div>
-                 <button 
-                    onClick={() => updateSetting('orderModal_autoFill', !settings.orderModal_autoFill)}
-                    className={`vb-toggle ${settings.orderModal_autoFill ? 'vb-toggle--on' : 'vb-toggle--off'}`}
-                 >
-                    <div className={`vb-toggle-thumb ${settings.orderModal_autoFill ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
-                 </button>
-              </div>
- 
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                 <div>
-                    <p className="text-sm font-semibold text-gray-900">Skip Modal After First Submission</p>
-                    <p className="text-[11px] text-gray-500">Don't show the form again if already sent.</p>
-                 </div>
-                 <button 
-                    onClick={() => updateSetting('orderModal_autoOff', !settings.orderModal_autoOff)}
-                    className={`vb-toggle ${settings.orderModal_autoOff ? 'vb-toggle--on' : 'vb-toggle--off'}`}
-                 >
-                    <div className={`vb-toggle-thumb ${settings.orderModal_autoOff ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
-                 </button>
-              </div>
-
-              {/* Floating Footer */}
-              <div className="vb-floating-footer">
-                <button onClick={() => handleSave()} disabled={saving} className="vb-footer-save">
-                  {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />} Save Settings
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {activeTab === 'help' && (
-          <HelpView onNavigate={(tab) => handleNavigate(tab)} />
+          <GlobalSettingsView 
+            settings={settings} 
+            updateSetting={updateSetting} 
+            handleSave={handleSave} 
+            saving={saving} 
+          />
         )}
       </div>
     </>
@@ -320,7 +279,7 @@ const App = () => {
   const [currentStep, setCurrentStep] = useState(() => parseInt(getUrlParam('step', '0'), 10) || 0);
   const [editChannel, setEditChannel] = useState(() => getUrlParam('channel', 'whatsapp'));
   const [previewMode, setPreviewMode] = useState('mobile');
-  const [detailId, setDetailId] = useState(null);
+  const [detailId, setDetailId] = useState(() => getUrlParam('id', null));
   const [settings, setSettings] = useState({ 
     activeChannels: [],
     global_message_template: '' 
@@ -361,9 +320,15 @@ const App = () => {
       url.searchParams.delete('channel');
       url.searchParams.delete('step');
     }
+
+    if (activeTab === 'conversation-detail' && detailId) {
+      url.searchParams.set('id', detailId);
+    } else {
+      url.searchParams.delete('id');
+    }
     
     window.history.pushState({}, '', url);
-  }, [activeTab, currentStep, editChannel]);
+  }, [activeTab, currentStep, editChannel, detailId]);
 
   useEffect(() => {
     const root = document.getElementById('vibebuy-admin-root');
@@ -428,8 +393,6 @@ const App = () => {
   const channel = getChannel(editChannel);
   const StepComponent = {
     1: channel.ConfigStep,
-    2: channel.AppearanceStep ?? SharedAppearanceStep,
-    3: channel.DisplayStep ?? SharedDisplayStep
   }[currentStep];
 
   return (
@@ -457,7 +420,13 @@ const App = () => {
                 saving={saving}
                 onUpgrade={() => setShowUpgradeModal(true)}
                 onHelp={navigateToHelp}
-              />
+                onNavigate={handleNavigate}
+                onViewDetail={(id) => {
+                  setDetailId(id);
+                  setActiveTab('conversation-detail');
+                }}
+                detailId={detailId}
+                helpContext={helpContext} />
             )}
           </>
         ) : (
@@ -470,34 +439,20 @@ const App = () => {
                 </button>
                 <div className="w-px h-5 bg-gray-200" />
                 <div className="vb-wizard-title-group">
-                  <div className="vb-wizard-step-badge">{currentStep}</div>
-                  <h1 className="vb-wizard-title">{STEP_LABELS[currentStep - 1]}</h1>
+                  <div className={`vb-channel-icon-sm ${channel.color} mr-2`}>{channel.icon}</div>
+                  <h1 className="vb-wizard-title">{channel.name} Connection</h1>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="vb-header-version-green">VibeBuy Lite</span>
+                <span className={settings.is_pro ? 'vb-header-version-green' : 'vb-header-version-gray'}>
+                  {settings.is_pro ? 'VibeBuy Pro' : 'VibeBuy Lite'}
+                </span>
                 <span className="vb-header-version-gray">{VERSION}</span>
               </div>
             </header>
 
-            <div className="vb-step-bar">
-              {STEP_LABELS.map((label, i) => {
-                const stepNum = i + 1;
-                return (
-                  <React.Fragment key={label}>
-                    <button
-                      onClick={() => setCurrentStep(stepNum)}
-                      className={`vb-step-pill ${currentStep === stepNum ? 'vb-step-pill--active' : currentStep > stepNum ? 'vb-step-pill--done' : 'vb-step-pill--idle'}`}
-                    >
-                      <span className={`vb-step-num ${currentStep === stepNum ? 'vb-step-num--active' : currentStep > stepNum ? 'vb-step-num--done' : 'vb-step-num--idle'}`}>
-                        {currentStep > stepNum ? <Check className="w-3 h-3" strokeWidth={3} /> : stepNum}
-                      </span>
-                      {label}
-                    </button>
-                    {i < STEP_LABELS.length - 1 && <div className="vb-step-dash" />}
-                  </React.Fragment>
-                );
-              })}
+            <div className="vb-step-bar pb-8 border-b border-gray-100 mb-8">
+               <p className="text-xs font-medium text-gray-400">Branding and display settings have been moved to the <span className="text-blue-500 font-bold">Global Settings</span> tab for a unified experience.</p>
             </div>
 
             <main className="vb-wizard-body">
@@ -549,33 +504,22 @@ const App = () => {
 
             <footer className="vb-wizard-footer">
               <button
-                onClick={() => setCurrentStep(currentStep > 1 ? currentStep - 1 : 0)}
+                onClick={() => setCurrentStep(0)}
                 className="vb-footer-back"
               >
-                <ChevronLeft className="w-4 h-4" /> Back
+                <ChevronLeft className="w-4 h-4" /> Exit
               </button>
               
               <div className="flex items-center gap-4">
-                <span className="vb-footer-step hidden md:block">Step {currentStep} of {STEP_LABELS.length}</span>
-                
                 <div className="flex gap-2">
-                    {currentStep < 3 ? (
-                      <button
-                        onClick={() => setCurrentStep(currentStep + 1)}
-                        className="vb-footer-next"
-                      >
-                        Next Step <ChevronRight className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleSave()}
-                        disabled={saving}
-                        className="vb-footer-save"
-                      >
-                        {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />}
-                        Save Settings
-                      </button>
-                    )}
+                  <button
+                    onClick={() => handleSave()}
+                    disabled={saving}
+                    className="vb-footer-save"
+                  >
+                    {saving ? <div className="vb-spinner-sm" /> : <Save className="w-4 h-4" />}
+                    Save Connection
+                  </button>
                 </div>
               </div>
             </footer>

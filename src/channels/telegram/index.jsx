@@ -20,8 +20,6 @@ const telegram = {
   },
 
   ConfigStep,
-  AppearanceStep: null,
-  DisplayStep: null,
 };
 
 export default telegram;

@@ -25,9 +25,6 @@ const whatsapp = {
 
   // Step 1 component — channel-specific
   ConfigStep,
-  // Step 2 & 3 — null = use shared
-  AppearanceStep: null,
-  DisplayStep: null,
 };
 
 export default whatsapp;

@@ -7,10 +7,10 @@ export default defineConfig({
   build: {
     // Output the build files into the plugin's assets directory
     outDir: 'assets',
-    // Clear the assets directory before building
+    // Disable emptyOutDir to prevent deleting assets/css/index.css (manually managed)
     emptyOutDir: false,
-    // Generate manifest.json so PHP can read the files with hashes
-    manifest: true,
+    // No manifest required for fixed filenames
+    manifest: false,
     rollupOptions: {
       // Define entry points
       input: {
@@ -18,13 +18,13 @@ export default defineConfig({
         widget: resolve(__dirname, 'src/widget/FloatingButton.jsx')
       },
       output: {
-        entryFileNames: `js/[name]-[hash].js`,
-        chunkFileNames: `js/chunks/[name]-[hash].js`,
+        entryFileNames: `js/[name].js`,
+        chunkFileNames: `js/chunks/[name].js`,
         assetFileNames: (assetInfo) => {
           if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return `css/[name]-[hash][extname]`;
+            return `css/index[extname]`; // Force index.css
           }
-          return `media/[name]-[hash][extname]`;
+          return `media/[name][extname]`;
         }
       }
     }

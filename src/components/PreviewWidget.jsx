@@ -5,14 +5,33 @@ const PreviewWidget = ({ settings, previewMode, editChannel }) => {
   const activeChannelId = editChannel || settings.activeChannels?.[0] || 'whatsapp';
   
   const prefix = `${activeChannelId}_`;
-  const get = (field, fallback) => settings[prefix + field] ?? fallback;
+  const get = (field, fallback) => {
+    // If it's a global branding field, priority is global key (WITHOUT prefix)
+    const globalKeyMap = {
+      'bgColor': 'backgroundColor',
+      'textColor': 'textColor',
+      'borderRadius': 'borderRadius',
+      'buttonText': 'buttonText',
+      'fontSize': 'fontSize',
+      'wooAutoInject': 'buttonPosition',
+      'layout': 'buttonLayout',
+      'iconUrl': 'iconUrl'
+    };
+
+    if (globalKeyMap[field] && settings[globalKeyMap[field]] !== undefined) {
+      return settings[globalKeyMap[field]];
+    }
+
+    // Fallback to channel-specific or default
+    return settings[prefix + field] ?? fallback;
+  };
 
   const bgColor = get('bgColor', '#00c851');
   const textColor = get('textColor', '#ffffff');
   const borderRadius = get('borderRadius', 8);
   const buttonText = get('buttonText', 'Chat with us');
   const iconUrl = get('iconUrl', '');
-  const position = settings[`${activeChannelId}_wooAutoInject`] || 'before_cart';
+  const position = get('wooAutoInject', 'before_cart');
   const layout = get('layout', 'stacked');
 
   const ChannelIcon = () => {

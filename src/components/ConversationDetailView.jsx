@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, User, Mail, Calendar, ExternalLink, ShoppingCart, Tag, Hash, Archive, Info, DollarSign, Package } from 'lucide-react';
+import { ChevronLeft, User, Mail, Calendar, ExternalLink, ShoppingCart, Tag, Hash, Archive, Info, DollarSign, Package, MessageCircle, Lock } from 'lucide-react';
 
-const ConversationDetailView = ({ id, onBack }) => {
+const ConversationDetailView = ({ id, onBack, isPro }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -174,7 +174,14 @@ const ConversationDetailView = ({ id, onBack }) => {
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                                <Archive className="w-3 h-3" /> Stock Keeping Unit (SKU)
                             </span>
-                            <p className="text-lg font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg inline-block">{data.product_details.sku}</p>
+                            {isPro ? (
+                              <p className="text-lg font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg inline-block">{data.product_details.sku}</p>
+                            ) : (
+                              <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 w-fit">
+                                 <Lock className="w-3.5 h-3.5 text-amber-500" />
+                                 <p className="text-sm font-black text-gray-400">Locked in Lite</p>
+                              </div>
+                            )}
                             <span className="block text-xs text-gray-400 font-bold mt-1">Universal ID: #{data.product_details.id}</span>
                          </div>
 

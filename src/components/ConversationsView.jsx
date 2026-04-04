@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, MessageCircle, User, Mail, Calendar, ExternalLink, Crown, ShoppingCart } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, MessageCircle, User, Mail, Calendar, ExternalLink, Crown, ShoppingCart, Download, Lock } from 'lucide-react';
 
-const ConversationsView = ({ onViewDetail }) => {
+const ConversationsView = ({ onViewDetail, settings }) => {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -36,6 +36,34 @@ const ConversationsView = ({ onViewDetail }) => {
     return () => clearTimeout(timer);
   }, [paged, search]);
 
+  const handleExport = () => {
+    if (!settings?.is_pro || connections.length === 0) return;
+    
+    // CSV Construction
+    const headers = ['ID', 'Customer Name', 'Email', 'Phone', 'Channel', 'Product', 'Qty', 'Date', 'Message'];
+    const rows = connections.map(item => [
+      item.id,
+      `"${item.customer_name.replace(/"/g, '""')}"`,
+      item.customer_email,
+      item.customer_phone || '',
+      item.channel_id,
+      `"${(item.product_title || 'N/A').replace(/"/g, '""')}"`,
+      item.product_qty || 1,
+      item.formatted_date,
+      `"${(item.customer_message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
+    ]);
+
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `vibebuy-leads-${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="vb-connections-container">
       <div className="vb-section-header flex justify-between items-center mb-6">
@@ -43,15 +71,35 @@ const ConversationsView = ({ onViewDetail }) => {
           <h2 className="vb-section-title">Customer Conversations</h2>
           <p className="vb-section-subtitle">Manage inquiries and leads from your chat buttons.</p>
         </div>
-        <div className="vb-search-wrap relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search by name or email..." 
-            className="vb-search-input pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 w-64"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPaged(1); }}
-          />
+        <div className="flex items-center gap-3">
+          <div className="vb-search-wrap relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search by name or email..." 
+              className="vb-search-input pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 w-64"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPaged(1); }}
+            />
+          </div>
+          <button 
+            onClick={handleExport}
+            className={`flex items-center gap-2 px-4 py-2 bg-white border rounded-lg text-xs font-black uppercase transition-all shadow-sm relative group/export overflow-hidden ${
+              settings?.is_pro 
+                ? 'border-gray-200 text-gray-700 hover:border-blue-500 hover:text-blue-600' 
+                : 'border-gray-100 text-gray-300 opacity-60 grayscale cursor-not-allowed'
+            }`}
+          >
+             <Download className="w-4 h-4" /> Export Leads
+             {!settings?.is_pro && (
+               <>
+                 <div className="absolute top-0 right-0 py-0.5 px-1.5 bg-amber-400 text-white text-[7px] font-black uppercase rounded-bl shadow-sm">PRO</div>
+                 <div className="absolute bottom-full mb-3 right-0 bg-gray-900 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover/export:opacity-100 whitespace-nowrap pointer-events-none transition-all scale-95 group-hover/export:scale-100 shadow-xl border border-gray-800 z-50">
+                   <Crown className="w-3.5 h-3.5 inline mr-1 text-amber-400" /> CSV/Excel Export (PRO)
+                 </div>
+               </>
+             )}
+          </button>
         </div>
       </div>
 
@@ -74,11 +122,11 @@ const ConversationsView = ({ onViewDetail }) => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 border-bottom border-gray-100">
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer Info</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Interest Product</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
                   <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Channel</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Inquiry Context</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Precise Date</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Message</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>

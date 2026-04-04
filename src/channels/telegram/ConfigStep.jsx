@@ -1,13 +1,73 @@
 import React from 'react';
-import { Lock, Check } from 'lucide-react';
+import { Lock, Check, Send, AlertCircle, RefreshCw } from 'lucide-react';
 import MessageTemplateEditor from '../../components/MessageTemplateEditor.jsx';
 
 const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
+  const [testing, setTesting] = React.useState(false);
+  const [testResult, setTestResult] = React.useState(null);
+  
   const prefix = `${channel.id}_`;
   const get = (field, fallback = '') => settings[prefix + field] ?? fallback;
 
+  // Handle global activeChannels array
+  const activeChannels = settings.activeChannels || [];
+  const isActive = activeChannels.includes(channel.id);
+
+  const toggleChannel = () => {
+    let newActive;
+    if (isActive) {
+      newActive = activeChannels.filter(id => id !== channel.id);
+    } else {
+      newActive = settings.is_pro ? [...activeChannels, channel.id] : [channel.id];
+    }
+    updateSetting('activeChannels', newActive);
+  };
+
+  const handleSendTest = async () => {
+    if (testing) return;
+    setTesting(true);
+    setTestResult(null);
+
+    try {
+      const response = await fetch(`${window.vibebuyData.apiUrl}test-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': window.vibebuyData.nonce
+        },
+        body: JSON.stringify({ channel_id: channel.id })
+      });
+      const data = await response.json();
+      setTestResult({
+        success: data.success,
+        message: data.message || (data.success ? 'Success!' : 'Failed to send test.')
+      });
+    } catch (error) {
+      setTestResult({ success: false, message: 'Network error or restriction.' });
+    } finally {
+      setTesting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Channel Activation */}
+      <div className="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100 mb-2">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+            {channel.name} Engine Status
+            {isActive ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />}
+          </h3>
+          <p className="text-[10px] text-gray-500 font-medium">Toggle this to enable/disable {channel.name} notifications.</p>
+        </div>
+        <button 
+          onClick={toggleChannel}
+          className={`vb-toggle ${isActive ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+        >
+          <div className={`vb-toggle-thumb ${isActive ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+        </button>
+      </div>
+
       {/* Bot Username */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -62,6 +122,36 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
         <p className="text-xs text-gray-400 mt-1.5">
           Get your ID from <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">@userinfobot</a>
         </p>
+
+        {/* Send Test Button */}
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleSendTest}
+            disabled={testing || !get('botToken') || !get('chatId')}
+            className={`w-full h-11 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all border-2 ${
+              testing ? 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed' : 
+              testResult?.success ? 'bg-green-50 border-green-200 text-green-600' :
+              testResult?.success === false ? 'bg-red-50 border-red-200 text-red-600' :
+              'bg-blue-600 border-blue-600 text-white hover:brightness-110 active:scale-[0.98]'
+            }`}
+          >
+            {testing ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : testResult?.success ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            {testing ? 'Sending Test...' : testResult?.success ? 'Test Sent Successfully' : 'Send Test Notification'}
+          </button>
+          {testResult && !testResult.success && (
+            <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 animate-in slide-in-from-top-1">
+              <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-red-600 leading-tight font-medium">{testResult.message}</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Message Template Selection */}
@@ -87,7 +177,7 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
               <p className="text-sm font-bold text-gray-600">Custom for Telegram</p>
               <p className="text-[11px] text-gray-400">Override global template for this channel</p>
             </div>
-            <span className="bg-amber-400 text-white text-[9px] font-bold px-2 py-0.5 rounded">PRO Only</span>
+            <span className="bg-amber-400 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-sm">PRO</span>
           </div>
         </div>
         <p className="text-[11px] text-gray-400 mt-3 italic">
@@ -102,10 +192,28 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
             <div key={f} className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50">
               <Lock className="w-3.5 h-3.5 text-gray-300 shrink-0" />
               <span className="text-xs text-gray-400 font-medium">{f}</span>
-              <span className="ml-auto bg-amber-400 text-white text-[8px] font-bold px-1 py-0.5 rounded">PRO</span>
+              <span className="ml-auto bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">PRO</span>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 📋 SHORTCODE */}
+      <div className="pt-6 border-t border-gray-100">
+        <label className="block text-sm font-semibold text-gray-700 mb-3">Shortcode (Manual)</label>
+        <div className="flex items-center justify-between border-2 border-blue-50 rounded-2xl px-5 py-4 bg-blue-50/20 shadow-sm overflow-hidden ring-4 ring-white">
+          <code className="text-sm text-blue-600 font-bold font-mono tracking-tight">{`[vibebuy channel="${channel.id}"]`}</code>
+          <button 
+            onClick={() => {
+                navigator.clipboard.writeText(`[vibebuy channel="${channel.id}"]`);
+                alert('Shortcode copied!');
+            }} 
+            className="text-blue-500 hover:text-blue-700 transition-all active:scale-90 p-2 bg-white rounded-lg shadow-sm border border-blue-50"
+          >
+            <Check className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="text-[10px] text-gray-400 font-medium mt-3 italic px-2 text-center opacity-70">Paste this code anywhere to render the button manually.</p>
       </div>
     </div>
   );

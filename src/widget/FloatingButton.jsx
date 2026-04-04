@@ -21,10 +21,37 @@ const getChannelLink = (channelId, settings, product, manualData) => {
   } else if (channelId === 'telegram') {
     const username = settings.telegram_botUsername;
     return username ? `https://t.me/${username}` : '#';
-  } else if (channelId === 'discord') {
-    return '#';
+  } else if (channelId === 'zalo') {
+    const number = manualData?.phone || settings.zalo_number;
+    return `https://zalo.me/${number}`;
+  } else if (channelId === 'messenger') {
+    const id = settings.messenger_id;
+    return `https://m.me/${id}`;
   }
   return '#';
+};
+
+const trackEvent = async (eventType, channelId, productId) => {
+  const payload = window.vibebuyWidgetData || {};
+  if (!payload.settings?.is_pro) return;
+
+  try {
+    await fetch(`${payload.apiUrl}track`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': payload.nonce
+      },
+      body: JSON.stringify({
+        event_type: eventType,
+        channel: channelId,
+        product_id: productId,
+        referrer: document.referrer
+      })
+    });
+  } catch (err) {
+    // Silent fail for tracking
+  }
 };
 
 const useOrderFlow = (settings, channelId, product, manualData) => {
@@ -37,6 +64,9 @@ const useOrderFlow = (settings, channelId, product, manualData) => {
     const submittedLocal = localStorage.getItem(`vibebuy_submitted_${channelId}_${productId}`) === 'true';
     const submittedRemote = payload.submittedInquiries?.includes(`${channelId}|${productId}`);
     setHasSubmitted(submittedLocal || submittedRemote);
+
+    // Analytics: Widget View
+    trackEvent('view', channelId, product?.id || 0);
   }, [channelId, product?.id, payload.submittedInquiries]);
 
   const triggerAction = (e) => {
@@ -44,6 +74,9 @@ const useOrderFlow = (settings, channelId, product, manualData) => {
       if (e.stopPropagation) e.stopPropagation();
       if (e.preventDefault) e.preventDefault();
     }
+
+    // Analytics: Click
+    trackEvent('click', channelId, product?.id || 0);
     
     const modalEnabled = settings.orderModal_enabled !== false;
     const autoOff = settings.orderModal_autoOff === true; // Explicitly on, default to false in logic for better testing
@@ -100,21 +133,21 @@ const useOrderFlow = (settings, channelId, product, manualData) => {
   return { isModalOpen, triggerAction, handleModalSubmit, handleModalClose, hasSubmitted };
 };
 
-const SingleButton = ({ settings, channelId, productData, manualData }) => {
-  const { isModalOpen, triggerAction, handleModalSubmit, handleModalClose, hasSubmitted } = useOrderFlow(settings, channelId, productData, manualData);
+const LeadButton = ({ settings, productData, manualData }) => {
+  const { isModalOpen, triggerAction, handleModalSubmit, handleModalClose, hasSubmitted } = useOrderFlow(settings, 'global', productData, manualData);
   const strings = window.vibebuyWidgetData?.strings || {};
 
-  const bgColor = settings[`${channelId}_backgroundColor`] || settings.backgroundColor || (channelId === 'whatsapp' ? '#25D366' : '#0088cc');
-  const textColor = settings[`${channelId}_textColor`] || settings.textColor || '#ffffff';
-  const bRadius = settings[`${channelId}_borderRadius`] !== undefined ? settings[`${channelId}_borderRadius`] : settings.borderRadius;
-  const bWidth = settings[`${channelId}_width`] || settings.width || '100%';
-  const bHeight = settings[`${channelId}_height`] || settings.height || 48;
-  const fSize = settings[`${channelId}_fontSize`] || settings.fontSize || 14;
+  const bgColor = settings.backgroundColor || '#22c55e';
+  const textColor = settings.textColor || '#ffffff';
+  const bRadius = settings.borderRadius !== undefined ? settings.borderRadius : 10;
+  const layout = settings.buttonLayout || 'stacked';
+  const bWidth = settings.width || (layout === 'inline' ? 'auto' : '100%');
+  const bHeight = settings.height || 48;
+  const fSize = settings.fontSize || 14;
   
   const isSubmitted = hasSubmitted;
-  const defaultText = channelId === 'whatsapp' ? (strings.orderViaWhatsApp || 'Order via WhatsApp') : (strings.orderVia || 'Order via') + ' ' + channelId.charAt(0).toUpperCase() + channelId.slice(1);
-  const bText = isSubmitted ? (strings.alreadyRequested || 'Already Requested') : (settings[`${channelId}_buttonText`] || defaultText);
-  const bIcon = settings[`${channelId}_buttonIconUrl`];
+  const bText = isSubmitted ? (strings.alreadyRequested || 'Đã gửi yêu cầu') : (settings.buttonText || 'Gửi yêu cầu tư vấn');
+  const bIcon = settings.buttonIconUrl;
 
   const style = {
     backgroundColor: isSubmitted ? '#9ca3af' : bgColor,
@@ -122,7 +155,7 @@ const SingleButton = ({ settings, channelId, productData, manualData }) => {
     borderRadius: bRadius !== undefined ? `${bRadius}px` : '10px',
     cursor: isSubmitted ? 'not-allowed' : 'pointer',
     opacity: isSubmitted ? 0.8 : 1,
-    width: bWidth.toString().includes('%') ? bWidth : `${bWidth}px`,
+    width: bWidth === 'auto' ? 'auto' : (bWidth.toString().includes('%') ? bWidth : `${bWidth}px`),
     height: `${bHeight}px`,
     fontSize: `${fSize}px`,
   };
@@ -139,7 +172,7 @@ const SingleButton = ({ settings, channelId, productData, manualData }) => {
         {bIcon ? (
            <img src={bIcon} alt="Icon" className="w-5 h-5 rounded-full object-cover" />
         ) : (
-           channelId === 'whatsapp' ? <Phone className="w-5 h-5 fill-current" /> : <Send className="w-5 h-5 fill-current" />
+           <MessageCircle className="w-5 h-5 fill-current" />
         )}
         <span className="truncate">{bText}</span>
       </button>
@@ -149,10 +182,10 @@ const SingleButton = ({ settings, channelId, productData, manualData }) => {
         onClose={handleModalClose}
         onSubmit={handleModalSubmit}
         channel={{ 
-          id: channelId, 
-          name: channelId.charAt(0).toUpperCase() + channelId.slice(1), 
-          color: channelId, 
-          icon: channelId === 'whatsapp' ? <Phone /> : <Send /> 
+          id: 'global', 
+          name: 'VibeBuy', 
+          color: 'global', 
+          icon: <MessageCircle /> 
         }}
         product={productData}
         userData={window.vibebuyWidgetData?.currentUser}
@@ -162,37 +195,22 @@ const SingleButton = ({ settings, channelId, productData, manualData }) => {
   );
 };
 
-const InlineChatButtons = ({ settings, productData, manualData, channelId, displayMode }) => {
-  const activeChannels = channelId ? [channelId] : (settings.activeChannels || []);
-  
-  if (activeChannels.length === 0) return null;
-
-  // Determine layout from the first active channel's settings if not global
-  const layout = displayMode || settings[`${activeChannels[0]}_layout`] || 'stacked';
-  const isInline = layout === 'inline';
-
+const InlineChatButtons = ({ settings, productData, manualData }) => {
   return (
-    <div className={`vibebuy-inline-container font-sans mb-4 flex ${isInline ? 'flex-row gap-2' : 'flex-col gap-3'}`}>
-      {activeChannels.map(id => (
-        <SingleButton 
-          key={id}
-          settings={settings}
-          channelId={id}
-          productData={productData}
-          manualData={manualData}
-        />
-      ))}
+    <div className="vibebuy-inline-container font-sans mb-4">
+      <LeadButton 
+        settings={settings}
+        productData={productData}
+        manualData={manualData}
+      />
     </div>
   );
 };
 
 const FloatingBubble = ({ settings, productData }) => {
-  const activeChannel = settings.activeChannels?.[0] || 'whatsapp';
-  const { isModalOpen, triggerAction, handleModalSubmit, handleModalClose, hasSubmitted } = useOrderFlow(settings, activeChannel, productData, null);
+  const { isModalOpen, triggerAction, handleModalSubmit, handleModalClose, hasSubmitted } = useOrderFlow(settings, 'global', productData, null);
 
-  const customBgColor = settings.backgroundColor || (activeChannel === 'whatsapp' ? '#25D366' : '#0088cc');
-  const customBorderWidth = settings.borderWidth ? `${settings.borderWidth}px` : '0px';
-  const customBorderColor = settings.borderColor || 'transparent';
+  const customBgColor = settings.backgroundColor || '#22c55e';
   const customRadius = settings.borderRadius !== undefined ? `${settings.borderRadius}px` : '999px';
   const hasText = settings.buttonText && settings.buttonText.trim() !== '';
 
@@ -203,9 +221,6 @@ const FloatingBubble = ({ settings, productData }) => {
           className={`flex items-center justify-center shadow-xl cursor-pointer transform hover:scale-105 transition-all text-white ${hasText ? 'px-5 py-3 gap-3' : 'w-14 h-14'}`}
           style={{ 
             backgroundColor: customBgColor,
-            borderWidth: customBorderWidth,
-            borderColor: customBorderColor,
-            borderStyle: 'solid',
             borderRadius: customRadius,
           }}
           onClick={(e) => triggerAction(e)}
@@ -213,11 +228,7 @@ const FloatingBubble = ({ settings, productData }) => {
            {settings.buttonIconUrl ? (
               <img src={settings.buttonIconUrl} alt="Custom Agent Avatar" className="w-6 h-6 object-cover rounded-full shadow-sm" />
            ) : (
-              <>
-                {activeChannel === 'whatsapp' && <Phone className="w-6 h-6 fill-current" />}
-                {activeChannel === 'telegram' && <Send className="w-6 h-6 fill-current" />}
-                {(activeChannel !== 'whatsapp' && activeChannel !== 'telegram') && <MessageCircle className="w-6 h-6" />}
-              </>
+              <MessageCircle className="w-6 h-6 fill-current" />
            )}
 
            {hasText && (
@@ -230,7 +241,7 @@ const FloatingBubble = ({ settings, productData }) => {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         onSubmit={handleModalSubmit}
-        channel={{ id: activeChannel, name: activeChannel.charAt(0).toUpperCase() + activeChannel.slice(1), color: activeChannel, icon: activeChannel === 'whatsapp' ? <Phone /> : <Send /> }}
+        channel={{ id: 'global', name: 'VibeBuy', color: 'global', icon: <MessageCircle /> }}
         product={productData}
         userData={window.vibebuyWidgetData?.currentUser}
         settings={settings}
@@ -308,24 +319,17 @@ const bootstrapWidget = () => {
     );
   });
 
-  // 2. Grouped widget items (New Grouping Logic)
+  // 2. Grouped widget items (Simplified to one lead button)
   const groupNodes = document.querySelectorAll('.vibebuy-inline-widget-group');
   groupNodes.forEach(node => {
      const isWoo = node.dataset.woo === 'true';
-     const channels = (node.dataset.channels || '').split(',').filter(Boolean);
-     const displayMode = node.dataset.display;
-
      const root = createRoot(node);
      root.render(
-        <div className={`vibebuy-inline-container font-sans mb-4 flex ${displayMode === 'inline' ? 'flex-row gap-2 overflow-x-auto pb-1' : 'flex-col gap-3'}`}>
-           {channels.map(id => (
-              <SingleButton 
-                 key={id}
-                 settings={settings}
-                 channelId={id}
-                 productData={isWoo ? currentProduct : null}
-              />
-           ))}
+        <div className="vibebuy-inline-container font-sans mb-4">
+           <LeadButton 
+              settings={settings}
+              productData={isWoo ? currentProduct : null}
+           />
         </div>
      );
   });

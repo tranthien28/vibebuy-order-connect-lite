@@ -17,7 +17,7 @@ class VibeBuy_DB {
 	 */
 	public static function get_table_name() {
 		global $wpdb;
-		return $wpdb->prefix . 'vibebuy_connections';
+		return $wpdb->prefix . 'vibebuy_leads';
 	}
 
 	/**
@@ -34,7 +34,7 @@ class VibeBuy_DB {
 			channel_id varchar(50) NOT NULL,
 			product_id bigint(20) DEFAULT 0,
 			customer_name varchar(255) NOT NULL,
-			customer_email varchar(255) NOT NULL,
+			customer_email varchar(255) DEFAULT '',
 			customer_phone varchar(25) DEFAULT '',
 			product_qty int(11) DEFAULT 1,
 			customer_message text DEFAULT '',
@@ -80,6 +80,16 @@ class VibeBuy_DB {
 			self::create_table(); // Try to self-heal
 			// Retry once
 			$result = $wpdb->insert( $table_name, $insert_data, array( '%d', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s' ) );
+		}
+
+		if ( $result !== false && ! vibebuy_is_pro() ) {
+			// Keep only the most recent 10 connections for lite version.
+			// WordPress doesn't support subquery in DELETE straightforwardly without a wrapper.
+			$wpdb->query( "DELETE FROM $table_name WHERE id NOT IN (
+				SELECT id FROM (
+					SELECT id FROM $table_name ORDER BY created_at DESC LIMIT 10
+				) AS tmp
+			)" );
 		}
 
 		return $result;

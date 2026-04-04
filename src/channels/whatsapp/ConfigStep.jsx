@@ -6,8 +6,39 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
   const prefix = `${channel.id}_`;
   const get = (field, fallback = '') => settings[prefix + field] ?? fallback;
 
+  // Handle global activeChannels array
+  const activeChannels = settings.activeChannels || [];
+  const isActive = activeChannels.includes(channel.id);
+
+  const toggleChannel = () => {
+    let newActive;
+    if (isActive) {
+      newActive = activeChannels.filter(id => id !== channel.id);
+    } else {
+      newActive = settings.is_pro ? [...activeChannels, channel.id] : [channel.id];
+    }
+    updateSetting('activeChannels', newActive);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Channel Activation */}
+      <div className="flex items-center justify-between p-4 bg-green-50/50 rounded-2xl border border-green-100 mb-2">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+            {channel.name} Engine Status
+            {isActive ? <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />}
+          </h3>
+          <p className="text-[10px] text-gray-500 font-medium">Toggle this to enable/disable {channel.name} notifications.</p>
+        </div>
+        <button 
+          onClick={toggleChannel}
+          className={`vb-toggle ${isActive ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+        >
+          <div className={`vb-toggle-thumb ${isActive ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+        </button>
+      </div>
+
       {/* Phone Number */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -30,8 +61,8 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
       </div>
 
       {/* Message Template Selection */}
-      <div className="pt-4 border-t border-slate-100">
-        <label className="block text-sm font-semibold text-gray-700">
+      <div className="pt-2 border-t border-slate-100">
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
           Message Template
         </label>
         <div className="space-y-3">
@@ -58,9 +89,8 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
       </div>
 
       {/* Pro Features */}
-      <div className="pt-6 border-t border-slate-100">
-        <label className="block text-sm font-semibold text-gray-700">Channel Power-ups (PRO)</label>
-        <div className="grid grid-cols-2 gap-3 opacity-60">
+      <div className="pt-2 border-t border-slate-100">
+        <div className="grid grid-cols-2 gap-3 opacity-60 mt-4">
           {['Multi-Agent', 'Hours Control', 'AI Assistant', 'Analytics'].map(f => (
             <div key={f} className="flex items-center gap-3 border border-slate-200 rounded-2xl px-4 py-3 bg-slate-50/50">
               <Lock className="w-3.5 h-3.5 text-slate-300 shrink-0" />
@@ -68,6 +98,24 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 📋 SHORTCODE */}
+      <div className="pt-6 border-t border-gray-100">
+        <label className="block text-sm font-semibold text-gray-700 mb-3">Shortcode (Manual)</label>
+        <div className="flex items-center justify-between border-2 border-blue-50 rounded-2xl px-5 py-4 bg-blue-50/20 shadow-sm overflow-hidden ring-4 ring-white">
+          <code className="text-sm text-blue-600 font-bold font-mono tracking-tight">{`[vibebuy channel="${channel.id}"]`}</code>
+          <button 
+            onClick={() => {
+                navigator.clipboard.writeText(`[vibebuy channel="${channel.id}"]`);
+                alert('Shortcode copied!');
+            }} 
+            className="text-blue-500 hover:text-blue-700 transition-all active:scale-90 p-2 bg-white rounded-lg shadow-sm border border-blue-50"
+          >
+            <Check className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="text-[10px] text-gray-400 font-medium mt-3 italic px-2 text-center opacity-70">Paste this code anywhere to render the button manually.</p>
       </div>
     </div>
   );

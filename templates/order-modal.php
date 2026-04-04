@@ -49,10 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<!-- Form Section -->
 					<div class="space-y-4">
-						<div class="vibebuy-grid-force" style="display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important;">
-							<div id="vibe-slot-field-name"></div>
-							<div id="vibe-slot-field-email"></div>
-						</div>
+						<div id="vibe-slot-field-name"></div>
 						<div id="vibe-slot-field-phone"></div>
 						<div id="vibe-slot-field-message" class="opacity-100"></div>
 						

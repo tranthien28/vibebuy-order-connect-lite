@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Send, User, Mail, MessageSquare, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { X, Send, User, Mail, MessageSquare, CheckCircle2, ShoppingCart, Phone } from 'lucide-react';
 
 const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, settings }) => {
   const [formData, setFormData] = useState({
     customer_name: '',
-    customer_email: '',
     customer_phone: '',
     customer_message: ''
   });
@@ -18,7 +17,6 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
       setFormData(prev => ({
         ...prev,
         customer_name: `${userData.firstName} ${userData.lastName}`.trim(),
-        customer_email: userData.email || ''
       }));
     }
   }, [isOpen, userData, settings.orderModal_autoFill]);
@@ -38,7 +36,6 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
     
     const success = await onSubmit({
       customer_name: formData.customer_name,
-      customer_email: formData.customer_email,
       customer_phone: formData.customer_phone,
       customer_message: formData.customer_message,
       channel_id: channel.id,
@@ -49,10 +46,11 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
 
     if (success) {
       setIsSuccess(true);
+      // Wait a bit longer for the user to read the success message
       setTimeout(() => {
         setIsSuccess(false);
-        onClose(true); 
-      }, 2000);
+        onClose(false); // Close without redirect by default
+      }, 3000);
     } else {
       setIsSubmitting(false);
     }
@@ -128,12 +126,17 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
     const skuEl = document.getElementById('vibe-slot-product-sku');
     if (skuEl) {
       slots.push(createPortal(
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {product?.sku && (
-            <span className="text-[9px] bg-gray-50 text-gray-400 px-1.5 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">SKU: {product.sku}</span>
-          )}
-          {product?.variation && (
-            <span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded border border-blue-100 font-bold uppercase tracking-wider">{product.variation}</span>
+        <div className="flex flex-col mt-1">
+          <div className="flex flex-wrap gap-1.5">
+            {product?.sku && (
+              <span className="text-[9px] bg-gray-50 text-gray-400 px-1.5 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">SKU: {product.sku}</span>
+            )}
+            {product?.variation && (
+              <span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded border border-blue-100 font-bold uppercase tracking-wider">{product.variation}</span>
+            )}
+          </div>
+          {(product?.sku || product?.variation) && (
+            <p className="text-[8px] text-gray-400 font-medium mt-1 italic leading-tight">Variation & SKU details are optimized for <b>VibeBuy Pro</b>.</p>
           )}
         </div>,
         skuEl
@@ -161,6 +164,8 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
       ));
     }
 
+    const bRadius = settings.borderRadius !== undefined ? `${settings.borderRadius}px` : '10px';
+
     // Field Slots
     const nameFieldEl = document.getElementById('vibe-slot-field-name');
     if (nameFieldEl) {
@@ -169,7 +174,8 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
           <label className="text-[9px] font-black uppercase text-gray-400 mb-1 flex items-center gap-1.5"><User className="w-2.5 h-2.5" /> Full Name</label>
           <input
             type="text"
-            className="h-9 px-3 w-full bg-gray-50 border border-gray-200 rounded-[10px] text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+            style={{ borderRadius: bRadius }}
+            className="h-9 px-3 w-full bg-gray-50 border border-gray-200 text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none"
             required
             placeholder="Your name"
             value={formData.customer_name}
@@ -180,33 +186,17 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
       ));
     }
 
-    const emailFieldEl = document.getElementById('vibe-slot-field-email');
-    if (emailFieldEl) {
-      slots.push(createPortal(
-        <div className="vibebuy-form-group">
-          <label className="text-[9px] font-black uppercase text-gray-400 mb-1 flex items-center gap-1.5"><Mail className="w-2.5 h-2.5" /> Email</label>
-          <input
-            type="email"
-            className="h-9 px-3 w-full bg-gray-50 border border-gray-200 rounded-[10px] text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none"
-            required
-            placeholder="email@example.com"
-            value={formData.customer_email}
-            onChange={e => setFormData({ ...formData, customer_email: e.target.value })}
-          />
-        </div>,
-        emailFieldEl
-      ));
-    }
-
     const phoneFieldEl = document.getElementById('vibe-slot-field-phone');
     if (phoneFieldEl) {
       slots.push(createPortal(
         <div className="vibebuy-form-group">
-          <label className="text-[9px] font-black uppercase text-gray-400 mb-1 flex items-center gap-1.5"><MessageSquare className="w-2.5 h-2.5" /> Phone Number</label>
+          <label className="text-[9px] font-black uppercase text-gray-400 mb-1 flex items-center gap-1.5"><Phone className="w-2.5 h-2.5" /> Phone Number</label>
           <input
             type="tel"
-            className="h-9 px-3 w-full bg-gray-50 border border-gray-200 rounded-[10px] text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none"
-            placeholder="e.g., 090xxxxxxx"
+            style={{ borderRadius: bRadius }}
+            className="h-9 px-3 w-full bg-gray-50 border border-gray-200 text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+            placeholder="090xxxxxxx"
+            required
             value={formData.customer_phone}
             onChange={e => setFormData({ ...formData, customer_phone: e.target.value })}
           />
@@ -221,7 +211,8 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
         <div className="vibebuy-form-group">
           <label className="text-[9px] font-black uppercase text-gray-400 mb-1 flex items-center gap-1.5"><MessageSquare className="w-2.5 h-2.5" /> Note</label>
           <textarea
-            className="p-3 w-full bg-gray-50 border border-gray-200 rounded-[10px] text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none min-h-[50px] resize-none"
+            style={{ borderRadius: bRadius }}
+            className="p-3 w-full bg-gray-50 border border-gray-200 text-[13px] text-gray-700 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all outline-none min-h-[50px] resize-none"
             placeholder="I'm interested..."
             rows={2}
             value={formData.customer_message}
@@ -238,12 +229,13 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className={`h-11 w-full rounded-[10px] text-white text-[13px] font-black tracking-wide shadow-md flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 vibebuy-bg-${channel.id}`}
+          className={`h-11 w-full text-white text-[13px] font-black tracking-wide shadow-md flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 vibebuy-bg-global`}
+          style={{ backgroundColor: settings.backgroundColor || '#22c55e', borderRadius: bRadius }}
         >
           {isSubmitting ? (
             <div className="vibebuy-spinner-sm" />
           ) : (
-            <>Send <Send className="w-3.5 h-3.5" /></>
+            <>Gửi yêu cầu <Send className="w-3.5 h-3.5" /></>
           )}
         </button>,
         submitEl
@@ -257,10 +249,8 @@ const OrderModal = ({ isOpen, onClose, onSubmit, channel, product, userData, set
            <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-500" />
            </div>
-           <p className="text-base font-black text-gray-900">{strings.requestSent || 'Inquiry Sent!'}</p>
-           {channel.id === 'whatsapp' && (
-              <p className="text-[11px] text-gray-400 font-bold mt-1">{strings.redirectingToChat || 'Redirecting...'}</p>
-           )}
+           <p className="text-base font-black text-gray-900">Thành công!</p>
+           <p className="text-[11px] text-gray-400 font-bold mt-1">Yêu cầu của bạn đã được gửi đi.</p>
         </div>,
         successEl
       ));

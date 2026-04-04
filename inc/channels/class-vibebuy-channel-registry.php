@@ -56,9 +56,33 @@ class VibeBuy_Channel_Registry {
 	 */
 	public static function get_all_settings_schema(): array {
 		$schema = [
-			// Global settings (not channel-specific)
-			'activeChannels' => 'sanitize_text_field', // array handled separately
-			'enabled'        => 'rest_sanitize_boolean',
+			// Global Branding & Visuals
+			'backgroundColor'    => 'sanitize_text_field',
+			'textColor'          => 'sanitize_text_field',
+			'buttonText'         => 'sanitize_text_field',
+			'buttonLayout'       => 'sanitize_text_field', // 'stacked', 'inline'
+			'borderRadius'       => 'absint', 
+			'fontSize'           => 'absint',
+			
+			// Global Positioning & Visibility
+			'buttonPosition'     => 'sanitize_text_field', // 'before_cart', 'after_cart'
+			'showOnMobile'       => 'rest_sanitize_boolean',
+			'showOnDesktop'      => 'rest_sanitize_boolean',
+			'orderModal_enabled' => 'rest_sanitize_boolean',
+			
+			// Visibility & Targeting (PRO in Lite Dashboard)
+			'visibility_home'      => 'rest_sanitize_boolean',
+			'visibility_shop'      => 'rest_sanitize_boolean',
+			'visibility_products'  => 'rest_sanitize_boolean',
+			'exclude_ids'          => 'sanitize_text_field',
+			'include_ids'          => 'sanitize_text_field',
+			'exclude_categories'   => 'sanitize_text_field',
+			'include_categories'   => 'sanitize_text_field',
+			'exclude_tags'         => 'sanitize_text_field',
+			'include_tags'         => 'sanitize_text_field',
+
+			'activeChannels'       => 'sanitize_text_field', // array handled separately
+			'enabled'              => 'rest_sanitize_boolean',
 		];
 
 		foreach ( self::$channels as $channel ) {

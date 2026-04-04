@@ -3,17 +3,13 @@ import { MessageSquare, Hash, Search, RotateCcw } from 'lucide-react';
 
 // ─── Available Tags ────────────────────────────────────────────
 const TAGS = {
-  '🛒 Order Info': [
-    { tag: '{{order_id}}',       desc: 'Order ID' },
-    { tag: '{{order_total}}',    desc: 'Total' },
-    { tag: '{{order_status}}',   desc: 'Status' },
-    { tag: '{{order_date}}',     desc: 'Date' },
-  ],
   '📦 Product': [
-    { tag: '{{product_name}}',   desc: 'Name' },
-    { tag: '{{product_price}}',  desc: 'Price' },
-    { tag: '{{product_qty}}',    desc: 'Qty requested' },
-    { tag: '{{product_url}}',    desc: 'Link' },
+    { tag: '{{product_name}}',      desc: 'Name' },
+    { tag: '{{product_price}}',     desc: 'Price' },
+    { tag: '{{product_qty}}',       desc: 'Qty requested' },
+    { tag: '{{product_url}}',       desc: 'Link' },
+    { tag: '{{product_sku}}',       desc: 'SKU (PRO)' },
+    { tag: '{{product_variation}}', desc: 'Variation (PRO)' },
   ],
   '👤 Customer': [
     { tag: '{{full_name}}',      desc: 'Full Name' },
@@ -21,14 +17,15 @@ const TAGS = {
     { tag: '{{phone}}',          desc: 'Phone' },
     { tag: '{{email}}',          desc: 'Email' },
   ],
-  '🏠 Billing/Notes': [
-    { tag: '{{billing_address}}',  desc: 'Address' },
-    { tag: '{{billing_company}}',  desc: 'Notes' },
-    { tag: '{{billing_city}}',     desc: 'City' },
-  ],
   '🏢 Store': [
     { tag: '{{site_name}}',  desc: 'Name' },
     { tag: '{{site_url}}',   desc: 'URL' },
+  ],
+  '💎 Custom Fields (PRO)': [
+    { tag: '{{custom_address}}', desc: 'Address (PRO)' },
+    { tag: '{{custom_size}}',    desc: 'Size (PRO)' },
+    { tag: '{{custom_color}}',   desc: 'Color (PRO)' },
+    { tag: '{{custom_image}}',   desc: 'Uploaded Image (PRO)' },
   ],
 };
 
@@ -46,7 +43,7 @@ VibeBuy connect
 ---`;
 
 // ─── Component ─────────────────────────────────────────────────
-const MessageTemplateEditor = ({ value, onChange }) => {
+const MessageTemplateEditor = ({ value, onChange, isPro }) => {
   const textareaRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -145,10 +142,15 @@ const MessageTemplateEditor = ({ value, onChange }) => {
                       key={tag}
                       type="button"
                       onClick={() => insertTag(tag)}
-                      className="vb-tag-chip-luxury"
+                      className="vb-tag-chip-luxury group"
                     >
                       <code className="vb-tag-chip-code">{tag}</code>
-                      <span className="vb-tag-chip-desc">{desc}</span>
+                      <span className="vb-tag-chip-desc">
+                        {desc.replace('(PRO)', '').trim()}
+                        {(desc.includes('(PRO)') && !isPro) && (
+                          <span className="ml-1.5 bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">PRO</span>
+                        )}
+                      </span>
                     </button>
                   ))}
                 </div>

@@ -34,8 +34,18 @@ class VibeBuy_Frontend {
 			return;
 		}
 
-		// PRO Rule: Business Hours
+		// PRO Rules Check
+		$should_show = true;
+
+		// 1. Business Hours (Implemented in Lite but respects Pro flag)
 		if ( ! $this->is_within_business_hours( $settings ) ) {
+			$should_show = false;
+		}
+
+		// 2. Allow Pro plugin to add more conditions (Device, Stock, Geo, etc.)
+		$should_show = apply_filters( 'vibebuy_should_show_widget', $should_show, $settings );
+
+		if ( ! $should_show ) {
 			return;
 		}
 
@@ -78,25 +88,23 @@ class VibeBuy_Frontend {
 			return;
 		}
 
-		$asset = VibeBuy_Loader::get_vite_asset( 'src/widget/FloatingButton.jsx' );
-		if ( ! $asset ) {
-			return;
-		}
-
 		wp_enqueue_script(
 			'vibebuy-widget-js',
-			VIBEBUY_PLUGIN_URL . 'assets/' . $asset['file'],
+			VIBEBUY_PLUGIN_URL . 'assets/js/widget.js',
 			array(),
-			VIBEBUY_VERSION,
+			time(), // Use timestamp for dev; can be VIBEBUY_VERSION later
 			true
 		);
 
 		// Load static CSS directly from assets (no build required)
+		$css_path = VIBEBUY_PLUGIN_DIR . 'assets/css/index.css';
+		$css_ver  = file_exists( $css_path ) ? filemtime( $css_path ) : VIBEBUY_VERSION;
+
 		wp_enqueue_style(
 			'vibebuy-widget-static-css',
 			VIBEBUY_PLUGIN_URL . 'assets/css/index.css',
 			array(),
-			filemtime( VIBEBUY_PLUGIN_DIR . 'assets/css/index.css' )
+			$css_ver
 		);
 
 		// Get current user data for pre-filling

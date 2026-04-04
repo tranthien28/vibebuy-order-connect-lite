@@ -53,7 +53,7 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
               <p className="text-sm font-bold text-gray-600">Custom for Discord</p>
               <p className="text-[11px] text-gray-400">Override global template for this channel</p>
             </div>
-            <span className="bg-amber-400 text-white text-[9px] font-bold px-2 py-0.5 rounded">PRO Only</span>
+            <span className="bg-amber-400 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-sm">PRO</span>
           </div>
         </div>
         <p className="text-[11px] text-gray-400 mt-3 italic">
@@ -68,7 +68,7 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
             <div key={f} className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 bg-gray-50">
               <Lock className="w-3.5 h-3.5 text-gray-300 shrink-0" />
               <span className="text-xs text-gray-400 font-medium">{f}</span>
-              <span className="ml-auto bg-amber-400 text-white text-[8px] font-bold px-1 py-0.5 rounded">PRO</span>
+              <span className="ml-auto bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">PRO</span>
             </div>
           ))}
         </div>
