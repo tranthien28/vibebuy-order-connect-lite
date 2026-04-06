@@ -127,7 +127,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                   <label className={labelClass}>Button Label</label>
                   <input
                     type="text"
-                    value={settings.buttonText || 'Submit'}
+                    value={settings.buttonText || 'Chat with us'}
                     onChange={e => updateSetting('buttonText', e.target.value)}
                     className={inputClass}
                   />
@@ -471,9 +471,9 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
           </div>
 
           {/* Right: Preview (Sticky) */}
-          <div className="lg:w-[500px] shrink-0">
+          <div className="lg:w-[320px] shrink-0">
             <div className="sticky top-6">
-              <div className="vb-preview-header mb-3">
+              <div className="vb-preview-header mb-2">
                 <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-widest">Live Preview</h3>
                 <div className="flex bg-gray-100 p-1 rounded-lg">
                   <button
@@ -490,7 +490,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                   </button>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-3xl p-4 border border-slate-100 min-h-[400px] flex items-center justify-center relative overflow-hidden">
+              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex items-center justify-center relative overflow-hidden">
                 <PreviewWidget settings={settings} previewMode={previewMode} editChannel="whatsapp" />
               </div>
             </div>

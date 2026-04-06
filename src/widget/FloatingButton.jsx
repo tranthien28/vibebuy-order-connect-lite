@@ -222,15 +222,20 @@ const LeadButton = ({ settings, productData, manualData }) => {
   const fSize = settings.fontSize || 14;
   
   const isSubmitted = hasSubmitted;
-  const bText = isSubmitted ? (strings.alreadyRequested || 'Đã gửi yêu cầu') : (settings.buttonText || 'Gửi yêu cầu tư vấn');
+  const isOutOfStock = productData && productData.is_in_stock === false;
+  const bText = isOutOfStock
+    ? 'Out of Stock'
+    : isSubmitted
+      ? (strings.alreadyRequested || 'Already Requested')
+      : (settings.buttonText || 'Chat with us');
   const bIcon = settings.buttonIconUrl;
 
   const style = {
-    backgroundColor: isSubmitted ? '#9ca3af' : bgColor,
-    color: textColor,
+    backgroundColor: isOutOfStock ? '#d1d5db' : (isSubmitted ? '#9ca3af' : bgColor),
+    color: isOutOfStock ? '#6b7280' : textColor,
     borderRadius: bRadius !== undefined ? `${bRadius}px` : '10px',
-    cursor: isSubmitted ? 'not-allowed' : 'pointer',
-    opacity: isSubmitted ? 0.8 : 1,
+    cursor: (isSubmitted || isOutOfStock) ? 'not-allowed' : 'pointer',
+    opacity: (isSubmitted || isOutOfStock) ? 0.8 : 1,
     width: bWidth === 'auto' ? 'auto' : (bWidth.toString().includes('%') ? bWidth : `${bWidth}px`),
     height: `${bHeight}px`,
     fontSize: `${fSize}px`,
@@ -240,8 +245,8 @@ const LeadButton = ({ settings, productData, manualData }) => {
     <div style={{ width: style.width }} className="flex-shrink-0">
       <button 
         type="button"
-        disabled={isSubmitted}
-        onClick={(e) => triggerAction(e)}
+        disabled={isSubmitted || isOutOfStock}
+        onClick={(e) => !isOutOfStock && triggerAction(e)}
         style={style}
         className="w-full font-semibold px-4 flex items-center justify-center gap-2 transition-all shadow-sm hover:opacity-90 hover:scale-[1.01]"
       >
@@ -357,15 +362,14 @@ const bootstrapWidget = () => {
   if (!settings.activeChannels || settings.activeChannels.length === 0) return;
 
   // 1. Single Re-bootstrapper for WooCommerce context
-  const scrapeWooData = () => {
+  const scrapeWooBaseData = () => {
     const qtyInput = document.querySelector('input[name="quantity"], input.qty, .qty');
     const qty = qtyInput ? parseInt(qtyInput.value) : 1;
 
-    // Image scraping (fallback for variations or other layouts)
     const imgElement = document.querySelector('.woocommerce-product-gallery__image img, .wp-post-image, .attachment-shop_single');
     const image = imgElement ? imgElement.src : (product?.image || '');
 
-    // Variation scraping
+    // Scrape selected variation attributes from dropdown
     let variationName = '';
     const variationForm = document.querySelector('.variations_form');
     if (variationForm) {
@@ -388,7 +392,71 @@ const bootstrapWidget = () => {
     };
   };
 
-  const currentProduct = product ? scrapeWooData() : null;
+  const currentProductRef = { current: product ? scrapeWooBaseData() : null };
+
+  // Render all mounted roots with updated product data
+  const rerenderAllWithProduct = (updatedProduct) => {
+    currentProductRef.current = updatedProduct;
+    mountedRoots.forEach(({ root, type, props }) => {
+      if (type === 'inline') {
+        root.render(<InlineChatButtons settings={settings} productData={updatedProduct} manualData={props.manualData} />);
+      } else if (type === 'group') {
+        root.render(
+          <div className="vibebuy-inline-container font-sans mb-4">
+            <LeadButton settings={settings} productData={updatedProduct} />
+          </div>
+        );
+      } else if (type === 'floating') {
+        root.render(<FloatingBubble settings={settings} productData={updatedProduct} />);
+      }
+    });
+  };
+
+  const mountedRoots = [];
+
+  // Listen to WooCommerce variation events on the page
+  const variationForm = document.querySelector('.variations_form');
+  if (variationForm) {
+    // variation_found: WooCommerce fires this when a valid variation is selected
+    variationForm.addEventListener('found_variation', (e) => {
+      const variation = e.detail || (e.originalEvent && e.originalEvent.detail);
+      // Also works with jQuery CustomEvent
+      const varData = variation || {};
+
+      // Match against our preloaded variation data from PHP
+      const selectedVariationId = varData.variation_id || 0;
+      const preloaded = (product?.variations || []).find(v => v.id === selectedVariationId);
+
+      const updatedProduct = {
+        ...currentProductRef.current,
+        price: varData.display_price || preloaded?.price || product?.price,
+        sku: varData.sku || preloaded?.sku || product?.sku,
+        is_in_stock: varData.is_in_stock !== undefined ? varData.is_in_stock : (preloaded?.is_in_stock !== undefined ? preloaded.is_in_stock : true),
+        stock_qty: preloaded?.stock_qty || null,
+        variation_id: selectedVariationId,
+        image: varData.image?.src || currentProductRef.current?.image || product?.image,
+      };
+
+      // Rebuild variation name from current selects
+      const attrs = [];
+      variationForm.querySelectorAll('select').forEach(sel => {
+        if (sel.value) {
+          const lbl = document.querySelector(`label[for="${sel.id}"]`)?.textContent?.replace(':', '').trim() || '';
+          attrs.push(`${lbl}: ${sel.value}`);
+        }
+      });
+      updatedProduct.variation = attrs.join(', ');
+
+      rerenderAllWithProduct(updatedProduct);
+    });
+
+    // variation_set: fired after reset (no variation selected)
+    variationForm.addEventListener('reset_data', () => {
+      rerenderAllWithProduct({ ...scrapeWooBaseData(), is_in_stock: product?.is_in_stock });
+    });
+  }
+
+  const currentProduct = currentProductRef.current;
 
   // 1. Single widget items
   const singleNodes = document.querySelectorAll('.vibebuy-inline-widget');
@@ -415,6 +483,7 @@ const bootstrapWidget = () => {
         displayMode={displayMode}
       />
     );
+    if (isWoo) mountedRoots.push({ root, type: 'inline', props: { manualData } });
   });
 
   // 2. Grouped widget items (Simplified to one lead button)
@@ -430,12 +499,14 @@ const bootstrapWidget = () => {
            />
         </div>
      );
+     if (isWoo) mountedRoots.push({ root, type: 'group', props: {} });
   });
 
   // 3. Floating Bubble
   const floatingContainer = document.getElementById('vibebuy-widget-root');
   if (floatingContainer) {
     const root = createRoot(floatingContainer);
+    mountedRoots.push({ root, type: 'floating', props: {} });
     
     const allInlineNodes = document.querySelectorAll('.vibebuy-inline-widget, .vibebuy-inline-widget-group');
     if (allInlineNodes.length > 0) {
@@ -444,13 +515,13 @@ const bootstrapWidget = () => {
         if (isSomeInlineVisible) {
           root.render(<div />);
         } else {
-          root.render(<FloatingBubble settings={settings} productData={currentProduct} />);
+          root.render(<FloatingBubble settings={settings} productData={currentProductRef.current} />);
         }
       });
       
       allInlineNodes.forEach(node => observer.observe(node));
     } else {
-      root.render(<FloatingBubble settings={settings} />);
+      root.render(<FloatingBubble settings={settings} productData={currentProductRef.current} />);
     }
   }
 };

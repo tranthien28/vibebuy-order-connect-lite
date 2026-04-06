@@ -77,6 +77,14 @@ class VibeBuy_API {
 				'permission_callback' => array( $this, 'check_permission' ),
 			),
 		) );
+
+		register_rest_route( 'vibebuy/v1', '/analytics', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_analytics' ),
+				'permission_callback' => array( $this, 'check_permission' ),
+			),
+		) );
 	}
 
 	public function check_permission() {
@@ -93,6 +101,7 @@ class VibeBuy_API {
 			'orderModal_autoOff'      => true,
 			'floatingSocial_enabled'  => false,
 			'floatingSocial_position' => 'bottom-right',
+			'buttonText'              => 'Chat with us',
 		);
 		$settings                     = get_option( 'vibebuy_lite_settings', array() );
 		$settings['totalConnections'] = VibeBuy_DB::get_total_connections_count();
@@ -303,6 +312,8 @@ class VibeBuy_API {
 			'customer_name'    => $params['customer_name'],
 			'customer_email'   => $params['customer_email'] ?? '',
 			'customer_phone'   => $params['customer_phone'] ?? '',
+			'customer_ip'      => $_SERVER['REMOTE_ADDR'] ?? '',
+			'customer_country' => '', // Placeholder for Pro auto-detection
 			'product_qty'      => $params['product_qty'] ?? 1,
 			'customer_message' => $params['customer_message'] ?? '',
 		);
@@ -366,8 +377,8 @@ class VibeBuy_API {
 			'{{billing_company}}'   => $data['customer_message'],
 			'{{product_name}}'      => $product_name,
 			'{{product_id}}'        => $product_id,
-			'{{product_sku}}'       => '{{product_sku}}',
-			'{{product_variation}}' => '{{product_variation}}',
+			'{{product_sku}}'       => '{{product_sku}}', // Pro Feature
+			'{{product_variation}}' => '{{product_variation}}', // Pro Feature
 			'{{product_qty}}'       => $data['product_qty'] ?? 1,
 			'{{product_price}}'     => $product_price,
 			'{{product_sale_price}}' => $sale_price,
@@ -476,5 +487,28 @@ class VibeBuy_API {
 			'success' => true,
 			'message' => 'Test message sent successfully!'
 		) );
+	}
+
+	/**
+	 * Get analytics data (Pro only via filter).
+	 */
+	public function get_analytics( WP_REST_Request $request ) {
+		$params = $request->get_params();
+		
+		// Default empty/mock data for Lite if no one hooks in
+		$data = array(
+			'total_clicks'  => 0,
+			'total_views'   => 0,
+			'cr'            => 0,
+			'chart_data'    => array(),
+			'top_products'  => array(),
+			'top_locations' => array(),
+			'top_referrers' => array(),
+			'hourly_data'   => array(),
+		);
+
+		$data = apply_filters( 'vibebuy_analytics_data', $data, $params );
+
+		return rest_ensure_response( $data );
 	}
 }

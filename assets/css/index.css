@@ -9,7 +9,7 @@
   box-sizing: border-box;
 }
 #vibebuy-admin-root { 
-  background: #f5f6fa; 
+  background: #f3f4f8; 
   min-height: calc(100vh - 32px); 
   display: flex; 
   flex-direction: column; 
@@ -144,21 +144,22 @@ body.wp-admin { min-height: 100vh; }
 .vb-header-version-green { font-size: 13px; font-weight: 600; color: #22c55e; }
 .vb-header-version-gray { font-size: 13px; color: #9ca3af; }
 .vb-content {
-  flex: 1; padding: 16px 20px 80px; display: flex; flex-direction: column; gap: 16px;
+  flex: 1; padding: 20px 24px 80px; display: flex; flex-direction: column; gap: 20px;
 }
 
 /* ─── Summary Cards ───────────────────────────────────────── */
-.vb-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.vb-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .vb-card {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 16px;
-  padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: relative; overflow: hidden;
+  background: #fff; border: 1px solid #eef0f5; border-radius: 20px;
+  padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); position: relative; overflow: hidden;
 }
 .vb-card--locked { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .vb-card--pro { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border-color: transparent; }
-.vb-card-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.vb-card-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
 .vb-card-icon--green { background: #f0fdf4; }
-.vb-card-icon--gray { background: #f3f4f6; }
-.vb-card-icon--red { background: #fef2f2; }
+.vb-card-icon--blue  { background: #eff6ff; }
+.vb-card-icon--gray  { background: #f3f4f6; }
+.vb-card-icon--red   { background: #fef2f2; }
 .vb-card-icon--white { background: rgba(255,255,255,0.25); }
 .vb-card-label { font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 6px; }
 .vb-card-label--white { color: rgba(255,255,255,0.8); }
@@ -178,18 +179,18 @@ body.wp-admin { min-height: 100vh; }
 
 /* ─── Messaging Engines Section ───────────────────────────── */
 .vb-section-card {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;
+  background: #fff; border: 1px solid #eef0f5; border-radius: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden;
 }
-.vb-section-header { padding: 20px 20px 14px; }
-.vb-section-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
-.vb-section-subtitle { font-size: 13px; color: #22c55e; font-weight: 500; }
+.vb-section-header { padding: 18px 20px 12px; }
+.vb-section-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 3px; }
+.vb-section-subtitle { font-size: 12px; color: #22c55e; font-weight: 500; }
 .vb-channel-list { display: flex; flex-direction: column; }
 .vb-channel-row {
   display: flex; align-items: center; gap: 14px;
-  padding: 14px 20px; border-top: 1px solid #f3f4f6; transition: background 0.1s;
+  padding: 13px 20px; border-top: 1px solid #f3f4f6; transition: background 0.1s;
 }
-.vb-channel-row:hover { background: #fafafa; }
+.vb-channel-row:hover { background: #f8fafc; }
 .vb-channel-icon {
   width: 42px; height: 42px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; font-size: 18px;
@@ -284,7 +285,10 @@ body.wp-admin { min-height: 100vh; }
 
 /* Preview pane */
 .vb-preview-pane { width: 450px; height: 550px;background: #f8fafc; display: flex; flex-direction: column; flex-shrink: 0; }
-.vb-preview-header { padding: 20px 24px; border-bottom: 1px solid #f1f5f9; background: #fff; }
+.vb-preview-header { 
+  padding: 0; display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
 .vb-preview-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 12px; }
 .vb-preview-toggle { display: flex; background: #f3f4f6; border-radius: 99px; padding: 3px; gap: 2px; }
 .vb-preview-toggle-btn {

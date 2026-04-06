@@ -62,11 +62,10 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
         <MessageSquare className="w-4 h-4 shrink-0" /> Inquiries
       </button>
       <button 
-        onClick={() => settings.is_pro ? onNavigate('analytics') : onUpgrade()} 
-        className={`vb-nav-item ${activeTab === 'analytics' ? 'vb-nav-item--active' : ''} ${!settings.is_pro ? 'vb-nav-item--locked' : ''}`}
+        onClick={() => onNavigate('analytics')} 
+        className={`vb-nav-item ${activeTab === 'analytics' ? 'vb-nav-item--active' : ''}`}
       >
         <BarChart3 className="w-4 h-4 shrink-0" /> Statistics
-        {!settings.is_pro && <span className="vb-pro-badge ml-auto">PRO</span>}
       </button>
       <button onClick={() => onNavigate('templates')} className={`vb-nav-item ${activeTab === 'templates' ? 'vb-nav-item--active' : ''}`}>
         <MessageSquare className="w-4 h-4 shrink-0" /> Message Templates
@@ -144,22 +143,19 @@ const DashboardContent = ({ activeTab, settings, updateSetting, startConfig, han
           <>
             <div className="vb-cards-grid">
               <div className="vb-card">
-                <div className="vb-card-icon vb-card-icon--green"><Zap className="w-5 h-5 text-green-500" /></div>
+                <div className="vb-card-icon vb-card-icon--green"><Zap className="w-4 h-4 text-green-500" /></div>
                 <p className="vb-card-label">Active Channels</p>
                 <p className="vb-card-value">{settings.activeChannels?.length || 0} / {CHANNELS.length}</p>
               </div>
-              <div className="vb-card cursor-pointer hover:shadow-md transition-all border border-blue-50 hover:border-blue-100" onClick={() => onNavigate('conversations')}>
-                <div className="vb-card-icon vb-card-icon--blue"><MessageSquare className="w-5 h-5 text-blue-500" /></div>
+              <div className="vb-card cursor-pointer border border-blue-50 hover:border-blue-100 transition-colors" onClick={() => onNavigate('conversations')}>
+                <div className="vb-card-icon vb-card-icon--blue"><MessageSquare className="w-4 h-4 text-blue-500" /></div>
                 <div className="flex-1">
                   <p className="vb-card-label">Inquiries</p>
                   <p className="vb-card-value text-blue-600">{settings.totalConnections || 0}</p>
                 </div>
-                <div className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                   <ChevronRight className="w-5 h-5" />
-                </div>
               </div>
               <div className="vb-card">
-                <div className="vb-card-icon vb-card-icon--red"><AlertCircle className="w-5 h-5 text-red-500" /></div>
+                <div className="vb-card-icon vb-card-icon--red"><AlertCircle className="w-4 h-4 text-red-500" /></div>
                 <p className="vb-card-label">Inactive</p>
                 <p className="vb-card-value vb-card-value--red">{CHANNELS.length - (settings.activeChannels?.length || 0)}</p>
               </div>

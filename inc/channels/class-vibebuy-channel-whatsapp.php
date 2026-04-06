@@ -59,4 +59,16 @@ class VibeBuy_Channel_WhatsApp extends VibeBuy_Channel_Base {
 
 		return 'https://wa.me/' . $number . '?text=' . rawurlencode( $message );
 	}
+
+	/**
+	 * Send a message via WhatsApp Business API.
+	 * In VibeBuy Lite, this returns an error or just true because Lite uses direct wa.me links.
+	 * @param array $settings
+	 * @param string $text
+	 * @return array|WP_Error
+	 */
+	public function send_message( array $settings, string $text ) {
+		// Lite version doesn't support server-to-server whatsapp.
+		return new WP_Error( 'not_supported', 'WhatsApp server-to-server sending requires VibeBuy Pro.' );
+	}
 }

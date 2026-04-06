@@ -36,6 +36,8 @@ class VibeBuy_DB {
 			customer_name varchar(255) NOT NULL,
 			customer_email varchar(255) DEFAULT '',
 			customer_phone varchar(25) DEFAULT '',
+			customer_ip varchar(100) DEFAULT '',
+			customer_country varchar(100) DEFAULT '',
 			product_qty int(11) DEFAULT 1,
 			customer_message text DEFAULT '',
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
@@ -64,6 +66,8 @@ class VibeBuy_DB {
 			'customer_name'    => sanitize_text_field( $data['customer_name'] ?? '' ),
 			'customer_email'   => sanitize_email( $data['customer_email'] ?? '' ),
 			'customer_phone'   => sanitize_text_field( $data['customer_phone'] ?? '' ),
+			'customer_ip'      => sanitize_text_field( $data['customer_ip'] ?? '' ),
+			'customer_country' => sanitize_text_field( $data['customer_country'] ?? '' ),
 			'product_qty'      => intval( $data['product_qty'] ?? 1 ),
 			'customer_message' => sanitize_textarea_field( $data['customer_message'] ?? '' ),
 			'created_at'       => current_time( 'mysql' ),
@@ -73,7 +77,7 @@ class VibeBuy_DB {
 		$result = $wpdb->insert(
 			$table_name,
 			$insert_data,
-			array( '%d', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+			array( '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' )
 		);
 
 		// If failed, table might be missing or corrupted (common on localhost)

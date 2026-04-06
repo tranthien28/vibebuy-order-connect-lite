@@ -76,28 +76,28 @@ const PreviewWidget = ({ settings, previewMode, editChannel }) => {
   // ── MOBILE VIEW ──────────────────────────────────────────────
   if (previewMode === 'mobile') {
     return (
-      <div className="flex items-center justify-center h-full py-2">
+      <div className="flex items-center justify-center">
         {/* Phone frame */}
-        <div className="relative bg-black rounded-[36px] p-2 shadow-2xl" style={{ width: '220px', minHeight: '420px' }}>
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-b-2xl z-10" />
-          <div className="bg-white rounded-[28px] overflow-hidden h-full flex flex-col" style={{ minHeight: '400px' }}>
+        <div className="relative bg-black rounded-[32px] p-2 shadow-2xl" style={{ width: '190px', minHeight: '370px' }}>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3.5 bg-black rounded-b-2xl z-10" />
+          <div className="bg-white rounded-[24px] overflow-hidden h-full flex flex-col" style={{ minHeight: '350px' }}>
             {/* Product image */}
-            <div className="bg-gray-100 flex-1 flex flex-col items-center justify-center" style={{ minHeight: '160px' }}>
-              <div className="w-14 h-14 bg-gray-200 rounded-lg mb-2 flex items-center justify-center">
-                <div className="w-6 h-6 bg-gray-300 rounded" />
+            <div className="bg-gray-100 flex-1 flex flex-col items-center justify-center" style={{ minHeight: '140px' }}>
+              <div className="w-12 h-12 bg-gray-200 rounded-lg mb-2 flex items-center justify-center">
+                <div className="w-5 h-5 bg-gray-300 rounded" />
               </div>
               <span className="text-xs text-gray-400 font-medium">Product Image</span>
             </div>
             
             {/* Product info lines */}
-            <div className="px-4 py-3 space-y-2">
-              <div className="h-3 bg-gray-200 rounded-full w-full" />
-              <div className="h-3 bg-gray-200 rounded-full w-4/5" />
-              <div className="h-3 bg-gray-100 rounded-full w-3/5" />
+            <div className="px-3 py-2.5 space-y-1.5">
+              <div className="h-2.5 bg-gray-200 rounded-full w-full" />
+              <div className="h-2.5 bg-gray-200 rounded-full w-4/5" />
+              <div className="h-2.5 bg-gray-100 rounded-full w-3/5" />
             </div>
 
             {/* Buttons */}
-            <div className="px-4 pb-4">
+            <div className="px-3 pb-3">
               {ButtonGroup}
             </div>
           </div>

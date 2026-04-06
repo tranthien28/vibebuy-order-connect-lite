@@ -16,13 +16,22 @@ class VibeBuy_Shortcode {
 	 * Initialize Shortcode Hooks.
 	 */
 	public function init() {
-		add_shortcode( 'vibebuy_button', array( $this, 'render_shortcode' ) );
+		if ( vibebuy_is_pro() ) {
+			add_shortcode( 'vibebuy_button', array( $this, 'render_shortcode' ) );
+		}
 	}
 
 	/**
 	 * Render the [vibebuy_button] shortcode.
 	 */
 	public function render_shortcode( $atts ) {
+		if ( ! vibebuy_is_pro() ) {
+			if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+				return '<p style="color:#d97706; font-size:12px; border:1px solid #d97706; padding:8px; border-radius:4px;">VibeBuy Config Error: Use of [vibebuy_button] shortcode requires VibeBuy Pro.</p>';
+			}
+			return '';
+		}
+
 		// Enqueue frontend scripts (defined in VibeBuy_Frontend)
 		// This ensures we only load widget JS if the shortcode is actually used.
 		if ( class_exists( 'VibeBuy_Frontend' ) ) {

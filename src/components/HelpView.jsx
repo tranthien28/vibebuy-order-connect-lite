@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { 
   Send, Hash, MessageSquare, ChevronRight, 
   ExternalLink, CheckCircle2, 
-  AlertCircle, Lock, Layout, Camera, Music, Link2, Mail, MessageCircle
+  AlertCircle, Lock, Layout, Camera, Music, Link2, Mail, MessageCircle, Target, HelpCircle
 } from 'lucide-react';
 
 const HelpView = ({ onNavigate, initialSection }) => {
-  const [activeTab, setActiveTab] = useState(initialSection || 'general');
+  const [activeTab, setActiveTab] = useState(initialSection || 'overview');
 
   const tabs = [
+    { id: 'overview', name: 'Plugin Overview', icon: <Target className="w-4 h-4" /> },
     { id: 'general', name: 'General Guide', icon: <Layout className="w-4 h-4" /> },
     { id: 'whatsapp', name: 'WhatsApp', icon: <MessageSquare className="w-4 h-4" /> },
     { id: 'telegram', name: 'Telegram', icon: <Send className="w-4 h-4" /> },
@@ -22,6 +23,7 @@ const HelpView = ({ onNavigate, initialSection }) => {
     { id: 'contact', name: 'Contact Form', icon: <Mail className="w-4 h-4" />, pro: true },
     { id: 'custom', name: 'Custom Link', icon: <Link2 className="w-4 h-4" />, pro: true },
     { id: 'templates', name: 'UI Overrides', icon: <Layout className="w-4 h-4" /> },
+    { id: 'faq', name: 'FAQ', icon: <HelpCircle className="w-4 h-4" /> }
   ];
 
     const renderTutorial = () => {
@@ -36,6 +38,61 @@ const HelpView = ({ onNavigate, initialSection }) => {
       ) : null;
 
       switch (activeTab) {
+        case 'overview':
+          return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Target className="w-6 h-6 text-blue-500" />
+                Purpose & Feature Scope
+              </h3>
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <h4 className="font-bold text-gray-800 mb-3">Plugin Purpose</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                    VibeBuy displays <b>a single button on the frontend</b> to help customers easily request consultation instead of going through a long 'add to cart' process. When clicked, the system opens a popup modal to <b>collect basic information (leads)</b> from the customer.
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <h4 className="font-bold text-gray-800 mb-3">Feature Scope</h4>
+                  <ul className="space-y-4 text-sm text-gray-600">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                      <span><b>Notifications Flow:</b> After the form is submitted, the system automatically sends a push notification to the administrator via the configured channels (e.g., via App or Server SDK). The frontend behavior is completely silent and just displays a Success message.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                      <span><b>WhatsApp Lite Exception:</b> Specifically for <b>WhatsApp on VibeBuy Lite</b>, after the customer successfully submits the form, a direct link popup (wa.me/number) is triggered to redirect the customer to send the message themselves. In the Pro version, WhatsApp points directly through the Business SDK API in the background, exactly like Telegram/Discord.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                      <span><b>Lite vs Pro Limitations:</b> In the <b>Lite</b> version, the plugin scope is pinned to activating only <b>1 channel</b> to receive data at a time. The <b>Pro</b> architecture allows enabling multiple channels simultaneously. Every enabled channel will receive a server-to-server push notification whenever there is a new lead.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm border-l-4 border-l-amber-500">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-[10px] font-black bg-amber-500 text-white px-2 py-0.5 rounded shadow-sm">PRO</span>
+                    <h4 className="font-bold text-gray-800">Advanced Shortcode Usage</h4>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                    The <code>[vibebuy_button]</code> shortcode is entirely locked to <b>VibeBuy Pro</b>. You can use it to render a custom chat button anywhere on a page using the following attributes:
+                  </p>
+                  <ul className="space-y-2 text-sm text-gray-600 font-mono bg-gray-50 p-4 rounded-xl text-[12px] border border-gray-100 shadow-inner">
+                    <li><span className="text-blue-600 font-bold">channel</span>: target channel slug (e.g. "whatsapp", "zalo", "messenger", "global")</li>
+                    <li><span className="text-blue-600 font-bold">text</span>: override the button text (e.g. text="Buy Now")</li>
+                    <li><span className="text-blue-600 font-bold">product_name</span>: override the context name (automatic by default)</li>
+                    <li><span className="text-blue-600 font-bold">width</span>: hardcode width (e.g. width="250px" or "100%")</li>
+                    <li><span className="text-blue-600 font-bold">theme</span>: layout theme (e.g. "light" or "dark")</li>
+                  </ul>
+                  <p className="text-xs text-gray-400 leading-relaxed mt-4 italic">
+                    Note: "product_id" and "quantity" aren't required as attributes since the unified popup always allows the customer to define the inquiry quantity context visually before the backend receives it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
         case 'general':
           return (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -371,6 +428,46 @@ const HelpView = ({ onNavigate, initialSection }) => {
                   The Contact channel will send an email to the admin with the customer's inquiry details. Ensure that your WordPress mail settings are configured correctly (e.g., via an SMTP plugin).
                 </p>
               </div>
+            </div>
+          </div>
+        );
+      case 'faq':
+        return (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <HelpCircle className="w-6 h-6 text-purple-500" />
+              Frequently Asked Questions (FAQ)
+            </h3>
+            <div className="space-y-4">
+              
+              <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                <h4 className="font-bold text-gray-800 mb-2">Can I use this plugin without WooCommerce?</h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Yes! Although heavily optimized for WooCommerce product integration, you can render connection buttons anywhere using global visibility rules or via direct overrides.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                <h4 className="font-bold text-gray-800 mb-2">How do I test my bot/app integration?</h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  We highly recommend enabling Test Mode or viewing a Live Preview from Global Settings. Try interacting with the form itself to verify the tokens and API URLs.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                <h4 className="font-bold text-gray-800 mb-2">Where does the "Inquiries" data go?</h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  A copy of the inquiry data from customers is saved to your WordPress database before being forwarded to your selected messaging channel. You can view them anytime via the 'Inquiries' tab on the Admin dashboard.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                <h4 className="font-bold text-gray-800 mb-2">Why are some channels locked with a Pro badge?</h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Advanced APIs, direct server-to-server routing to certain apps (like TikTok, Messenger API), and statistical reporting are available to VibeBuy Pro users to cover advanced maintenance.
+                </p>
+              </div>
+
             </div>
           </div>
         );

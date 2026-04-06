@@ -152,15 +152,40 @@ class VibeBuy_WooCommerce {
 		}
 
 		if ( $_product ) {
+			$is_variable = $_product->is_type( 'variable' );
+			
 			$data['product'] = array(
-				'id'        => $_product->get_id(),
-				'name'      => $_product->get_name(),
-				'price'     => $_product->get_price(),
-				'sku'       => $_product->get_sku(),
-				'url'       => get_permalink( $_product->get_id() ),
-				'image'     => get_the_post_thumbnail_url( $_product->get_id(), 'medium' ),
-				'currency'  => get_woocommerce_currency_symbol(),
+				'id'          => $_product->get_id(),
+				'name'        => $_product->get_name(),
+				'price'       => $_product->get_price(),
+				'sku'         => $_product->get_sku(),
+				'url'         => get_permalink( $_product->get_id() ),
+				'image'       => get_the_post_thumbnail_url( $_product->get_id(), 'medium' ),
+				'currency'    => get_woocommerce_currency_symbol(),
+				'is_variable' => $is_variable,
+				'is_in_stock' => $_product->is_in_stock(),
+				'stock_qty'   => $_product->get_stock_quantity(),
+				'manage_stock'=> $_product->get_manage_stock(),
+				'variations'  => array(),
 			);
+
+			// For variable products, pass all variations with their stock data
+			if ( $is_variable ) {
+				$variation_ids = $_product->get_children();
+				foreach ( $variation_ids as $var_id ) {
+					$variation = wc_get_product( $var_id );
+					if ( ! $variation ) continue;
+					$data['product']['variations'][] = array(
+						'id'          => $variation->get_id(),
+						'price'       => $variation->get_price(),
+						'sku'         => $variation->get_sku(),
+						'is_in_stock' => $variation->is_in_stock(),
+						'stock_qty'   => $variation->get_stock_quantity(),
+						'manage_stock'=> $variation->get_manage_stock(),
+						'attributes'  => $variation->get_variation_attributes(),
+					);
+				}
+			}
 		}
 
 		return $data;
