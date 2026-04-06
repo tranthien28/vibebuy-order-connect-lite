@@ -109,6 +109,8 @@ class VibeBuy_Admin
 			'homeUrl' => home_url('/'),
 			'locale' => determine_locale(),
 			'lang' => defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : '',
+			'isProInstalled' => vibebuy_is_pro_installed(),
+			'isPro' => vibebuy_is_pro(),
 			'i18n' => $this->get_i18n_strings(),
 		));
 

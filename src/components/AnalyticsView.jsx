@@ -2,44 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, MousePointer2, ShoppingBag, Globe, Share2, ChevronRight, Zap, Lock, MapPin, Clock } from 'lucide-react';
 
 const AnalyticsView = ({ settings }) => {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const isLite = !settings.is_pro;
+
+  // Initialize with mock data for Lite to avoid flash
+  const initialMockData = isLite ? {
+    total_clicks: 1240,
+    total_views: 4500,
+    cr: (( (settings.totalConnections || 45) / 1240) * 100).toFixed(1),
+    chart_data: [12, 18, 15, 25, 22, 30, 28],
+    top_products: [
+      { name: "Premium Coffee Mug", url: "/shop/premium-mug", count: 85 },
+      { name: "Stainless Steel Bottle", url: "/shop/bottle", count: 62 },
+      { name: "Eco-Friendly Tote Bag", url: "/shop/tote", count: 41 },
+    ],
+    top_locations: [
+      { country: "Vietnam", code: "VN", count: 1250, percentage: 65 },
+      { country: "United States", code: "US", count: 410, percentage: 15 },
+      { country: "Singapore", code: "SG", count: 220, percentage: 10 },
+      { country: "Other", code: "UN", count: 180, percentage: 10 },
+    ],
+    top_referrers: [
+      { referrer: "Google Search", count: 530 },
+      { referrer: "Facebook Ads", count: 420 },
+      { referrer: "Direct Traffic", count: 290 },
+    ],
+    hourly_data: [
+      { label: 'Morning', count: 120, color: '#3b82f6' },
+      { label: 'Afternoon', count: 350, color: '#10b981' },
+      { label: 'Evening', count: 580, color: '#f59e0b' },
+      { label: 'Night', count: 190, color: '#6366f1' },
+    ]
+  } : null;
+
+  const [loading, setLoading] = useState(!isLite);
+  const [data, setData] = useState(initialMockData);
 
   useEffect(() => {
-    if (!settings.is_pro) {
-      // Mock data for Lite version
-      const clicks = 1240;
-      const inquiries = settings.totalConnections || 45;
-      const calculatedCR = ((inquiries / clicks) * 100).toFixed(1);
-
-      setData({
-        total_clicks: clicks,
-        total_views: 4500,
-        cr: calculatedCR,
-        chart_data: [12, 18, 15, 25, 22, 30, 28],
-        top_products: [
-          { name: "Premium Coffee Mug", url: "/shop/premium-mug", count: 85 },
-          { name: "Stainless Steel Bottle", url: "/shop/bottle", count: 62 },
-          { name: "Eco-Friendly Tote Bag", url: "/shop/tote", count: 41 },
-        ],
-        top_locations: [
-          { country: "Vietnam", code: "VN", count: 1250, percentage: 65 },
-          { country: "United States", code: "US", count: 410, percentage: 15 },
-          { country: "Singapore", code: "SG", count: 220, percentage: 10 },
-          { country: "Other", code: "UN", count: 180, percentage: 10 },
-        ],
-        top_referrers: [
-          { referrer: "Google Search", count: 530 },
-          { referrer: "Facebook Ads", count: 420 },
-          { referrer: "Direct Traffic", count: 290 },
-        ],
-        hourly_data: [
-          { label: 'Morning', count: 120, color: '#3b82f6' },
-          { label: 'Afternoon', count: 350, color: '#10b981' },
-          { label: 'Evening', count: 580, color: '#f59e0b' },
-          { label: 'Night', count: 190, color: '#6366f1' },
-        ]
-      });
+    if (isLite) {
       setLoading(false);
       return;
     }
@@ -55,8 +54,8 @@ const AnalyticsView = ({ settings }) => {
       .catch(() => setLoading(false));
   }, [settings.is_pro, settings.totalConnections]);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[20px] border border-gray-100 shadow-sm">
+  if (loading && !data) return (
+    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[20px] border border-gray-100 shadow-sm animate-in fade-in duration-500">
       <div className="vb-spinner mb-4" />
       <p className="text-gray-400 font-black uppercase text-[10px] tracking-widest leading-none">Analyzing Data...</p>
     </div>
@@ -128,13 +127,15 @@ const AnalyticsView = ({ settings }) => {
   };
 
   const ProBadge = ({ text = "PRO", className = "" }) => (
-    <span className={`text-[10px] font-black bg-amber-400 text-white px-2.5 py-1 rounded shadow-sm flex items-center gap-1.5 leading-none uppercase ${className}`}>
-      <Lock className="w-3 h-3" /> {text}
+    <span className={`text-[9px] font-black bg-amber-400 text-white px-2 py-0.5 rounded shadow-sm flex items-center gap-1 leading-none uppercase ${className}`}>
+      <Lock className="w-2.5 h-2.5" /> {text}
     </span>
   );
 
+  const CHECKOUT_URL = 'https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0';
+
   return (
-    <div className="relative space-y-6">
+    <div className="relative space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       
       {/* 1. Header & Controls */}
       <div className="flex justify-between items-end mb-2 px-2">
@@ -151,19 +152,19 @@ const AnalyticsView = ({ settings }) => {
       {/* 2. Primary Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Client Clicks', value: data.total_clicks, icon: <MousePointer2 className="w-5 h-5" />, color: 'bg-blue-500', trend: '+12%', sub: 'Total button interactions' },
-          { label: 'Store Views', value: data.total_views, icon: <Zap className="w-5 h-5" />, color: 'bg-amber-500', trend: '+5.4%', sub: 'Website traffic reach' },
-          { label: 'Conv. Rate', value: `${data.cr}%`, icon: <TrendingUp className="w-5 h-5" />, color: 'bg-green-500', trend: '+2.1%', sub: '(Inquiries / Clicks) × 100' },
-          { label: 'Total Inquiries', value: settings.totalConnections || 0, icon: <ShoppingBag className="w-5 h-5" />, color: 'bg-purple-500', trend: '+8.3%', sub: 'Success leads collected' },
+          { label: 'Client Clicks', value: data.total_clicks, icon: <MousePointer2 className="w-5 h-5" />, color: 'bg-blue-500', trend: '+12%', sub: 'Total button interactions', gated: true },
+          { label: 'Store Views', value: data.total_views, icon: <Zap className="w-5 h-5" />, color: 'bg-amber-500', trend: '+5.4%', sub: 'Website traffic reach', gated: true },
+          { label: 'Conv. Rate', value: `${data.cr}%`, icon: <TrendingUp className="w-5 h-5" />, color: 'bg-green-500', trend: '+2.1%', sub: '(Inquiries / Clicks) × 100', gated: true },
+          { label: 'Total Inquiries', value: settings.totalConnections || 0, icon: <ShoppingBag className="w-5 h-5" />, color: 'bg-purple-500', trend: '+8.3%', sub: 'Success leads collected', gated: false },
         ].map((stat, i) => (
           <div key={i} className="bg-white p-5 rounded-[20px] border border-[#eef0f5] shadow-sm relative overflow-hidden">
-            {!settings.is_pro && (
+            {!settings.is_pro && stat.gated && (
               <div className="absolute top-3 right-3 z-10">
-                <ProBadge text="PRO" className="text-[8px] px-2 py-0.5" />
+                <ProBadge />
               </div>
             )}
             <div className="flex items-center justify-between mb-4">
-               <div className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center text-white shadow-md ${!settings.is_pro ? 'opacity-50' : ''}`}>
+               <div className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center text-white shadow-md ${!settings.is_pro && stat.gated ? 'opacity-40 grayscale-[0.5]' : ''}`}>
                  {stat.icon}
                </div>
                <div className="text-right">
@@ -184,9 +185,9 @@ const AnalyticsView = ({ settings }) => {
          {/* 3. Traffic Origins */}
          <div className="vb-section-card relative overflow-hidden flex flex-col h-full cursor-default">
             {!settings.is_pro && (
-               <div className="absolute inset-0 bg-white/5 z-20 flex items-center justify-center pointer-events-none">
-                  <ProBadge text="PRO: Source Discovery" className="shadow-2xl scale-110 -rotate-1" />
-               </div>
+              <div className="absolute top-4 right-4 z-20">
+                <ProBadge />
+              </div>
             )}
             <div className="vb-section-header border-b border-gray-50 flex items-center justify-between">
                <div>
@@ -215,9 +216,9 @@ const AnalyticsView = ({ settings }) => {
          {/* 4. Peak Engagement Hours */}
          <div className="vb-section-card h-full relative overflow-hidden flex flex-col cursor-default">
             {!settings.is_pro && (
-               <div className="absolute inset-0 bg-white/5 z-20 flex items-center justify-center pointer-events-none">
-                  <ProBadge text="PRO: Activity Heatmap" className="shadow-2xl scale-110 rotate-1" />
-               </div>
+              <div className="absolute top-4 right-4 z-20">
+                <ProBadge />
+              </div>
             )}
             <div className="vb-section-header border-b border-gray-50 flex items-center justify-between">
                <div>
@@ -247,8 +248,8 @@ const AnalyticsView = ({ settings }) => {
         {/* 5. Most Popular Products */}
         <div className="lg:col-span-2 vb-section-card relative overflow-hidden cursor-default">
           {!settings.is_pro && (
-            <div className="absolute inset-0 bg-white/5 z-20 flex items-center justify-center pointer-events-none">
-               <ProBadge text="Product Popularity PRO" className="shadow-2xl scale-100" />
+            <div className="absolute top-4 right-4 z-20">
+              <ProBadge />
             </div>
           )}
           <div className="vb-section-header border-b border-gray-50 flex items-center justify-between">
@@ -258,7 +259,7 @@ const AnalyticsView = ({ settings }) => {
             </div>
             <BarChart3 className="w-5 h-5 text-indigo-500" />
           </div>
-          <div className={`p-4 space-y-1 ${!settings.is_pro ? 'opacity-40' : ''}`}>
+          <div className={`p-4 space-y-1 ${!settings.is_pro ? 'opacity-40 grayscale-[0.5]' : ''}`}>
             {data.top_products.map((p, i) => (
               <div key={i} className="flex items-center gap-4 p-3 rounded-xl border border-transparent truncate">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400">#{i+1}</div>
@@ -279,13 +280,13 @@ const AnalyticsView = ({ settings }) => {
         <div className="lg:col-span-1 p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-[20px] border border-amber-100 flex flex-col gap-6 relative overflow-hidden shadow-sm">
             {!settings.is_pro && (
                <div className="absolute top-4 right-4">
-                  <ProBadge text="PRO" className="text-[8px] px-2 py-0.5" />
+                  <ProBadge />
                </div>
             )}
             <div className={`w-16 h-16 rounded-[20px] bg-amber-400 flex items-center justify-center text-white shrink-0 shadow-lg shadow-amber-200/50 ${!settings.is_pro ? 'opacity-50' : ''}`}>
                <TrendingUp className="w-8 h-8" />
             </div>
-            <div className={!settings.is_pro ? 'opacity-60' : ''}>
+            <div className={!settings.is_pro ? 'opacity-60 grayscale-[0.5]' : ''}>
                <div className="flex items-center gap-2 mb-3">
                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                  <h4 className="text-lg font-black text-amber-900 leading-none">Smart Insight</h4>
@@ -297,8 +298,8 @@ const AnalyticsView = ({ settings }) => {
                </p>
             </div>
             <button 
-              onClick={() => !settings.is_pro && window.open('https://vibebuy.com', '_blank')}
-              className="mt-auto h-12 bg-amber-900 text-white text-[11px] font-black uppercase rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 tracking-widest cursor-pointer"
+              onClick={() => !settings.is_pro && window.open(CHECKOUT_URL, '_blank')}
+              className="mt-auto h-12 bg-amber-900 text-white text-[11px] font-black uppercase rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 tracking-widest cursor-pointer shadow-lg active:scale-95"
             >
                ACTIVATE PRO <ChevronRight className="w-4 h-4" />
             </button>
@@ -308,8 +309,8 @@ const AnalyticsView = ({ settings }) => {
       {/* 7. Global Reach */}
       <div className="vb-section-card relative overflow-hidden cursor-default">
         {!settings.is_pro && (
-          <div className="absolute inset-0 bg-white/5 z-20 flex items-center justify-center pointer-events-none">
-             <ProBadge text="Advanced Geolocation Locked" className="shadow-2xl animate-bounce px-6 py-3 rounded-full" />
+          <div className="absolute top-4 right-4 z-20">
+             <ProBadge className="shadow-lg animate-pulse" />
           </div>
         )}
         <div className="vb-section-header border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
@@ -346,7 +347,7 @@ const AnalyticsView = ({ settings }) => {
               <div className="lg:col-span-2 relative">
                  <div className="w-full h-72 bg-slate-50 rounded-[20px] border border-slate-100 flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
-                    <MapPin className="w-14 h-14 text-blue-300 animate-bounce relative z-10" />
+                    <MapPin className="w-14 h-14 text-blue-300 relative z-10" />
                     <div className="absolute top-1/2 left-1/4 w-3 h-3 bg-blue-500 rounded-full animate-ping opacity-75" />
                     <div className="absolute top-1/3 left-2/3 w-2.5 h-2.5 bg-indigo-500 rounded-full animate-ping opacity-75 delay-300" />
                     <div className="absolute top-2/3 left-1/2 w-4 h-4 bg-purple-500 rounded-full animate-ping opacity-75 delay-700" />

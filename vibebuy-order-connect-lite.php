@@ -86,3 +86,12 @@ if ( ! function_exists( 'vibebuy_is_pro' ) ) {
 		return apply_filters( 'vibebuy_is_pro', false );
 	}
 }
+
+if ( ! function_exists( 'vibebuy_is_pro_installed' ) ) {
+	/**
+	 * Check if Pro plugin is present (regardless of license status).
+	 */
+	function vibebuy_is_pro_installed() {
+		return apply_filters( 'vibebuy_is_pro_installed', false );
+	}
+}

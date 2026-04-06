@@ -65,7 +65,7 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
         onClick={() => onNavigate('analytics')} 
         className={`vb-nav-item ${activeTab === 'analytics' ? 'vb-nav-item--active' : ''}`}
       >
-        <BarChart3 className="w-4 h-4 shrink-0" /> Statistics
+        <BarChart3 className="w-4 h-4 shrink-0" /> Analytics
       </button>
       <button onClick={() => onNavigate('templates')} className={`vb-nav-item ${activeTab === 'templates' ? 'vb-nav-item--active' : ''}`}>
         <MessageSquare className="w-4 h-4 shrink-0" /> Message Templates
@@ -73,9 +73,11 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
       <button onClick={() => onNavigate('settings')} className={`vb-nav-item ${activeTab === 'settings' ? 'vb-nav-item--active' : ''}`}>
         <Settings className="w-4 h-4 shrink-0" /> Global Settings
       </button>
-      <button onClick={() => onNavigate('license')} className={`vb-nav-item ${activeTab === 'license' ? 'vb-nav-item--active' : ''}`}>
-        <Shield className="w-4 h-4 shrink-0" /> License
-      </button>
+      {(window.vibebuyData?.isProInstalled || settings.is_pro) && (
+        <button onClick={() => onNavigate('license')} className={`vb-nav-item ${activeTab === 'license' ? 'vb-nav-item--active' : ''}`}>
+          <Shield className="w-4 h-4 shrink-0" /> License
+        </button>
+      )}
       <button onClick={() => onNavigate('help')} className={`vb-nav-item ${activeTab === 'help' ? 'vb-nav-item--active' : ''}`}>
         <HelpCircle className="w-4 h-4 shrink-0" /> Help
       </button>
@@ -129,7 +131,7 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
           {activeTab === 'dashboard' && 'Dashboard'}
           {activeTab === 'templates' && 'Message Templates'}
           {activeTab === 'conversations' && 'Leads & Inquiries'}
-          {activeTab === 'analytics' && 'Performance Analytics'}
+          {activeTab === 'analytics' && 'Analytics'}
           {activeTab === 'settings' && 'Global Settings'}
           {activeTab === 'help' && 'Help & Tutorials'}
           {activeTab === 'license' && 'License & Activation'}

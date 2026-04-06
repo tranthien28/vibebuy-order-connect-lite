@@ -103,7 +103,7 @@ const LicenseView = ({ settings, onUpdateSettings, onToast }) => {
                  <div className="pt-2 flex items-center gap-3 justify-center">
                     <AlertCircle className="w-4 h-4 text-amber-500" />
                     <p className="text-[11px] text-gray-500 font-bold uppercase tracking-tight">
-                      Don't have a key? <a href="https://vibebuy.io/pro" target="_blank" className="text-indigo-600 font-black hover:underline underline-offset-4">Get Pro Access</a>
+                      Don't have a key? <a href="https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0" target="_blank" className="text-indigo-600 font-black hover:underline underline-offset-4">Get Pro Access</a>
                     </p>
                  </div>
               </div>

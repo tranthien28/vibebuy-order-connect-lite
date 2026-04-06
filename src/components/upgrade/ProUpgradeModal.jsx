@@ -50,7 +50,7 @@ const ProUpgradeModal = ({ isOpen, onClose }) => {
 
             <div className="mt-6">
               <button 
-                onClick={() => window.open('https://vibebuy.lemonsqueezy.com/checkout/buy/pro-version', '_blank')}
+                onClick={() => window.open('https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0', '_blank')}
                 className="vb-upgrade-cta-btn group py-3 text-sm"
               >
                 Get Pro Access Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
