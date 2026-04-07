@@ -148,9 +148,11 @@ class VibeBuy_API
 			$settings['activeChannels'] = array_slice(array_filter($settings['activeChannels']), 0, 1);
 		}
 
-		return wp_parse_args($settings, array_merge($defaults, array(
+		$final_settings = wp_parse_args($settings, array_merge($defaults, array(
 			'totalConnections' => 0,
 		)));
+
+		return apply_filters('vibebuy_localize_frontend_data', $final_settings);
 	}
 
 	public function save_settings(WP_REST_Request $request)
