@@ -3,7 +3,7 @@
  * VibeBuy Admin Class
  * Handles Admin Menu, Dashboard Assets, and Review Notices.
  *
- * @package VibeBuy
+ * @package VibeBuy_Lite
  */
 
 if (!defined('ABSPATH')) {

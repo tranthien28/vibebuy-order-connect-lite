@@ -5,7 +5,7 @@
  * Settings schema is now fully dynamic: each channel registers its own keys.
  * Adding a new channel = no changes needed here.
  *
- * @package VibeBuy
+ * @package VibeBuy_Lite
  */
 
 if (!defined('ABSPATH')) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: VibeBuy Lite - Order via Messaging for WooCommerce
- * Plugin URI:  https://github.com/tranthien28
+ * Plugin URI:  https://github.com/tranthien28/vibebuy-order-connect-lite
  * Description: VibeBuy Lite - Sales Conversion Tool (Chat-to-Buy). Allows customers to quickly order via Messaging platforms.
  * Version:     1.0.3
  * Author:      Thien Tran
@@ -10,7 +10,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: vibebuy-order-connect-lite
  *
- * @package VibeBuy
+ * @package VibeBuy_Lite
  */
 
 // Prevent direct access.
