@@ -140,7 +140,7 @@ class VibeBuy_API
 		$settings['availableStatuses'] = $available_statuses;
 
 		// Enforce Lite limit: Only 1 active channel allowed
-		if (!$settings['is_pro'] && count($settings['activeChannels']) > 1) {
+		if (!apply_filters('vibebuy_enforce_lite_limits', true) && count($settings['activeChannels'] ?? []) > 1) {
 			$settings['activeChannels'] = array_slice(array_filter($settings['activeChannels']), 0, 1);
 		}
 
@@ -158,7 +158,7 @@ class VibeBuy_API
 		if (isset($params['activeChannels']) && is_array($params['activeChannels'])) {
 			$new_active = array_values(array_filter(array_map('sanitize_text_field', $params['activeChannels'])));
 			// Enforcement for Lite
-			if (!vibebuy_is_pro() && count($new_active) > 1) {
+			if (apply_filters('vibebuy_enforce_lite_limits', true) && count($new_active) > 1) {
 				$new_active = array_slice($new_active, 0, 1);
 			}
 			$settings['activeChannels'] = $new_active;
@@ -435,9 +435,11 @@ class VibeBuy_API
 			'{{site_url}}' => site_url(),
 			'<site_title>' => get_bloginfo('name'),
 			'{{site_name}}' => get_bloginfo('name'),
-			'{{order_id}}' => 'Inquiry',
 			'{{order_total}}' => $product_price,
 		);
+
+		// PRO: dynamic SKU and Variations
+		$replacements = apply_filters('vibebuy_template_replacements', $replacements, $data);
 
 		return str_replace(array_keys($replacements), array_values($replacements), $template);
 	}
@@ -512,9 +514,8 @@ class VibeBuy_API
 
 			// Set Status
 			$status = isset($settings['order_creation_status']) ? $settings['order_creation_status'] : 'pending';
-			if (!vibebuy_is_pro()) {
-				$status = 'pending'; // Enforcement: Lite always uses pending
-			}
+			$status = apply_filters('vibebuy_order_status', $status, $settings);
+			
 			$order->set_status($status);
 
 			$order->calculate_totals();
