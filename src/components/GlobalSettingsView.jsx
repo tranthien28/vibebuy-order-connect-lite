@@ -9,7 +9,7 @@ const PRESET_COLORS = [
 const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => {
   const [previewMode, setPreviewMode] = useState('mobile');
 
-  const inputClass = "w-full h-9 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:border-green-500 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed";
+  const inputClass = "w-full h-9 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:border-blue-500 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed";
   const labelClass = "block text-[11px] font-bold text-gray-500 uppercase tracking-tight mb-1.5";
 
   return (
@@ -71,7 +71,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase">Custom Hex (PRO)</div>
                       </>
                     ) : (
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" title="Pro Unlocked" />
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse" title="Pro Unlocked" />
                     )}
                   </div>
                 </div>
@@ -116,7 +116,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase">Custom Hex (PRO)</div>
                       </>
                     ) : (
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse" />
                     )}
                   </div>
                 </div>
@@ -181,7 +181,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                       key={l.id}
                       type="button"
                       onClick={() => updateSetting('buttonLayout', l.id)}
-                      className={`flex-1 py-1.5 px-3 rounded-lg border text-[10px] font-black uppercase transition-all ${(settings.buttonLayout || 'stacked') === l.id ? 'bg-green-600 border-green-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'
+                      className={`flex-1 py-1.5 px-3 rounded-lg border text-[10px] font-black uppercase transition-all ${(settings.buttonLayout || 'stacked') === l.id ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'
                         }`}
                     >
                       {l.label}
@@ -230,7 +230,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                         key={pos.id}
                         type="button"
                         onClick={() => updateSetting('buttonPosition', pos.id)}
-                        className={`flex-1 py-1.5 px-3 rounded-lg border text-[10px] font-black uppercase transition-all ${settings.buttonPosition === pos.id ? 'bg-green-600 border-green-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'}`}
+                        className={`flex-1 py-1.5 px-3 rounded-lg border text-[10px] font-black uppercase transition-all ${settings.buttonPosition === pos.id ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'}`}
                       >
                         {pos.label}
                       </button>
@@ -359,7 +359,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                       onClick={() => updateSetting('after_submission_action', 'thank_you')}
                       className={`flex-1 p-2.5 rounded-xl flex items-center justify-center gap-2 border transition-all ${(settings.after_submission_action || 'thank_you') === 'thank_you' ? 'bg-white border-blue-200 shadow-sm' : 'bg-transparent border-gray-100 opacity-60'}`}
                     >
-                      <CheckCircle className={`w-3.5 h-3.5 ${(settings.after_submission_action || 'thank_you') === 'thank_you' ? 'text-green-500' : 'text-gray-300'}`} />
+                      <CheckCircle className={`w-3.5 h-3.5 ${(settings.after_submission_action || 'thank_you') === 'thank_you' ? 'text-blue-500' : 'text-gray-300'}`} />
                       <span className={`text-[10px] font-black uppercase ${(settings.after_submission_action || 'thank_you') === 'thank_you' ? 'text-gray-900' : 'text-gray-400'}`}>Thank You Msg</span>
                     </button>
                     <button 
@@ -389,10 +389,10 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
             
             {/* 3.2 Order & Conversion (NEW) */}
-            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-green-100 bg-green-50/10'}`}>
+            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-blue-100 bg-blue-50/10'}`}>
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className={`w-4 h-4 ${settings.is_pro ? 'text-green-600' : 'text-gray-400'}`} />
+                  <ShoppingBag className={`w-4 h-4 ${settings.is_pro ? 'text-blue-600' : 'text-gray-400'}`} />
                   <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
                     Order & Conversion
                   </h3>
@@ -482,10 +482,10 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
 
             {/* 3.5 Branding Settings (PRO) */}
-            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-indigo-100 bg-indigo-50/10'}`}>
+            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-blue-100 bg-blue-50/10'}`}>
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Eye className={`w-4 h-4 ${settings.is_pro ? 'text-indigo-500' : 'text-gray-400'}`} />
+                  <Eye className={`w-4 h-4 ${settings.is_pro ? 'text-blue-500' : 'text-gray-400'}`} />
                   <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
                     Branding & Whitelabel {settings.is_pro ? '' : '(PRO)'}
                   </h3>
@@ -571,7 +571,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
 
                     <div className={`p-4 bg-white/50 rounded-2xl border border-gray-100 space-y-4 transition-all ${!settings.is_pro ? 'opacity-30' : ''}`}>
                         <div>
-                           <p className="text-[9px] font-black uppercase text-gray-400 tracking-wider mb-2">Detailed Platform Targeting</p>
+                           <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider mb-2">Detailed Platform Targeting</p>
                            <div className="flex flex-wrap gap-2">
                               {[
                                 { id: 'os_ios', name: 'iOS', icon: <Smartphone className="w-2.5 h-2.5" /> },
@@ -582,7 +582,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                                 <button
                                   key={p.id}
                                   onClick={() => settings.is_pro && updateSetting(p.id, !settings[p.id])}
-                                  className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[9px] font-black uppercase transition-all ${settings[p.id] ? 'bg-red-50 border-red-200 text-red-500 shadow-sm' : 'bg-white border-gray-100 text-gray-400 opacity-60 hover:opacity-100'}`}
+                                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-black uppercase transition-all ${settings[p.id] ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'}`}
                                   title={`Hide on ${p.name}`}
                                 >
                                    {p.icon}
@@ -593,7 +593,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                         </div>
 
                         <div>
-                           <p className="text-[9px] font-black uppercase text-gray-400 tracking-wider mb-2">Browser Filtering</p>
+                           <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider mb-2">Browser Filtering</p>
                            <div className="flex flex-wrap gap-2">
                               {[
                                 { id: 'browser_chrome', name: 'Chrome' },
@@ -603,7 +603,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                                 <button
                                   key={p.id}
                                   onClick={() => settings.is_pro && updateSetting(p.id, !settings[p.id])}
-                                  className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[9px] font-black uppercase transition-all ${settings[p.id] ? 'bg-red-50 border-red-200 text-red-500 shadow-sm' : 'bg-white border-gray-100 text-gray-400 opacity-60 hover:opacity-100'}`}
+                                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-black uppercase transition-all ${settings[p.id] ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300'}`}
                                   title={`Hide on ${p.name}`}
                                 >
                                    <Globe className="w-2.5 h-2.5" />
@@ -618,7 +618,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                   <div className="space-y-3">
                     <label className={labelClass}>Business Schedule</label>
                     <div className="space-y-3">
-                      <div className={`p-2.5 bg-white rounded-lg border border-gray-200 flex items-center justify-between ${settings.businessHours_enabled ? 'border-green-200 bg-green-50' : ''}`}>
+                      <div className={`p-2.5 bg-white rounded-lg border border-gray-200 flex items-center justify-between ${settings.businessHours_enabled ? 'border-blue-200 bg-blue-50' : ''}`}>
                         <span className="text-[10px] font-bold text-gray-700">Show active hours only</span>
                         <button
                           disabled={!settings.is_pro}
@@ -630,9 +630,9 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                       </div>
 
                       {settings.businessHours_enabled && settings.is_pro && (
-                        <div className="p-4 bg-white/80 rounded-2xl border border-gray-100 space-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className={`p-4 bg-white/80 rounded-2xl border border-gray-100 space-y-5 transition-all ${(!settings.businessHours_enabled || !settings.is_pro) ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
                           <div className="space-y-2">
-                             <p className="text-[9px] font-black uppercase text-gray-400 tracking-wider">Active Days</p>
+                             <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider">Active Days</p>
                              <div className="flex justify-between gap-1">
                                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
                                    const dayId = `businessHours_day_${idx}`;
@@ -642,7 +642,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                                          key={day}
                                          type="button"
                                          onClick={() => updateSetting(dayId, !isSelected)}
-                                         className={`w-8 h-8 rounded-full border text-[10px] font-black flex items-center justify-center transition-all ${isSelected ? 'bg-green-500 border-green-500 text-white shadow-sm shadow-green-100' : 'bg-white border-gray-100 text-gray-400'}`}
+                                         className={`w-8 h-8 rounded-full border text-[10px] font-black flex items-center justify-center transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-100' : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'}`}
                                       >
                                          {day[0]}
                                       </button>
@@ -673,7 +673,7 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                           </div>
 
                           <div className="space-y-2">
-                             <p className="text-[9px] font-black uppercase text-gray-400 tracking-wider">Holiday / Specific Dates Exclusion</p>
+                             <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider">Dates Exclusion (Holidays)</p>
                              <div className="relative">
                                 <AlertCircle className="absolute right-3 top-2.5 w-3 h-3 text-gray-400" />
                                 <input
@@ -684,9 +684,9 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                                    className="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-xl text-[10px] font-black placeholder:text-gray-300 focus:border-blue-200 outline-none transition-all shadow-inner"
                                 />
                              </div>
-                             <p className="text-[8px] text-gray-400 font-bold italic">Comma separated YYYY-MM-DD. Button will hide on these dates.</p>
+                             <p className="text-[8px] text-gray-400 font-bold italic">Comma separated YYYY-MM-DD. Widget hides on these dates.</p>
                           </div>
-                        </div>
+                      </div>
                       )}
                     </div>
                   </div>
@@ -711,22 +711,24 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                         </button>
                       </div>
 
-                      {settings.stock_threshold_enabled && settings.is_pro && (
-                        <div className="flex items-center justify-between p-2.5 bg-white rounded-lg border border-blue-50 animate-in slide-in-from-top-2 duration-300">
-                          <span className="text-[10px] font-bold text-gray-600">Hide if Stock &lt;</span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              placeholder="0"
-                              disabled={!settings.is_pro}
-                              value={settings.stock_threshold || ''}
-                              onChange={(e) => updateSetting('stock_threshold', e.target.value)}
-                              className="w-16 h-8 bg-gray-50 text-[11px] text-center border-none rounded-lg font-black focus:bg-white transition-all outline-none"
-                            />
-                            <span className="text-[10px] font-black text-gray-400">UNITS</span>
+                      <div className={`p-4 bg-white/80 rounded-2xl border border-gray-100 space-y-4 transition-all ${(!settings.stock_threshold_enabled || !settings.is_pro) ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                          <div className="flex items-center justify-between p-2.5 bg-blue-50/50 rounded-xl border border-blue-100">
+                            <span className="text-[10px] font-black text-gray-600 uppercase tracking-tight">Minimum Stock Units</span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                placeholder="0"
+                                disabled={!settings.is_pro}
+                                value={settings.stock_threshold || ''}
+                                onChange={(e) => updateSetting('stock_threshold', e.target.value)}
+                                className="w-16 h-9 bg-white text-[12px] text-center border border-blue-200 rounded-lg font-black focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                          <p className="text-[9px] text-gray-400 leading-relaxed font-medium">
+                            * The messaging widget will be automatically hidden if the product's actual stock falls below this number.
+                          </p>
+                      </div>
                     </div>
                   </div>
 

@@ -23,11 +23,11 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
   return (
     <div className="space-y-6">
       {/* Channel Activation */}
-      <div className="flex items-center justify-between p-4 bg-green-50/50 rounded-2xl border border-green-100 mb-2">
+      <div className="flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100 mb-2">
         <div>
           <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
             {channel.name} Engine Status
-            {isActive ? <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />}
+            {isActive ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />}
           </h3>
           <p className="text-[10px] text-gray-500 font-medium">Toggle this to enable/disable {channel.name} notifications.</p>
         </div>
@@ -66,15 +66,15 @@ const ConfigStep = ({ channel, settings, updateSetting, onNavigate }) => {
           Message Template
         </label>
         <div className="space-y-3">
-          <label className="flex items-center gap-4 p-4 rounded-2xl border-2 border-green-600 bg-green-50/30 ring-4 ring-green-50/20 shadow-sm cursor-pointer transition-all active:scale-[0.98]">
-            <div className={`w-4 h-4 rounded-full border-2 border-green-600 flex items-center justify-center shadow-[0_0_8px_rgba(34,197,94,0.4)]`}>
-              <div className="w-2 h-2 rounded-full bg-green-500" />
+          <label className="flex items-center gap-4 p-4 rounded-2xl border-2 border-blue-600 bg-blue-50/30 ring-4 ring-blue-50/20 shadow-sm cursor-pointer transition-all active:scale-[0.98]">
+            <div className={`w-4 h-4 rounded-full border-2 border-blue-600 flex items-center justify-center shadow-[0_0_8px_rgba(59,130,246,0.4)]`}>
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
             </div>
             <div className="flex-1">
-              <p className="text-[11px] font-black text-green-700 uppercase tracking-tight">Use Global Template</p>
-              <p className="text-[10px] text-green-600/70 font-bold uppercase mt-0.5">Sync with main settings</p>
+              <p className="text-[11px] font-black text-blue-700 uppercase tracking-tight">Use Global Template</p>
+              <p className="text-[10px] text-blue-600/70 font-bold uppercase mt-0.5">Sync with main settings</p>
             </div>
-            <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
+            <Check className="w-5 h-5 text-blue-600" strokeWidth={3} />
           </label>
 
           <div className="flex items-center gap-4 p-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 opacity-60 grayscale cursor-not-allowed">

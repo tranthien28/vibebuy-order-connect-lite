@@ -35,27 +35,62 @@ const LicenseView = ({ settings, onUpdateSettings, onToast }) => {
     }
   };
 
+  const handleDeactivate = async () => {
+    if (!window.confirm('Are you sure you want to deactivate your PRO license? All premium targeting rules will be paused.')) return;
+    setActivating(true);
+
+    try {
+      const response = await fetch(`${window.vibebuyData.apiUrl}deactivate-license`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-WP-Nonce': window.vibebuyData.nonce
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        onUpdateSettings({ ...settings, is_pro: false, license_key: '' });
+        onToast('License Deactivated', 'Your VibeBuy PRO features have been deactivated.', 'success');
+      }
+    } catch (err) {
+      onToast('Error', 'Connection failed. Please try again.', 'error');
+    } finally {
+      setActivating(false);
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="max-w-2xl">
+      <div className="vb-content-card max-w-2xl">
         {isPro ? (
-          <div className="vb-section-card p-10 text-center relative overflow-hidden border-green-100 bg-gradient-to-b from-white to-green-50/30">
+          <div className="p-10 text-center relative overflow-hidden border-blue-100 bg-gradient-to-b from-white to-blue-50/30 rounded-3xl border">
              <div className="relative z-10">
-               <div className="w-20 h-20 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-200 animate-bounce-slow">
+               <div className="w-20 h-20 bg-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-200 animate-bounce-slow">
                   <CheckCircle2 className="w-10 h-10 text-white" />
                </div>
                <h2 className="text-2xl font-black text-gray-900 mb-2">License is Active!</h2>
                <p className="text-sm text-gray-500 mb-8 px-6 font-medium leading-relaxed">
                  You have successfully unlocked all <strong>VibeBuy PRO</strong> features. Enjoy unlimited channels, premium FX, and advanced analytics on your store.
                </p>
-               <div className="inline-flex items-center gap-4 px-6 py-3 bg-white border border-green-100 rounded-2xl shadow-sm">
-                  <Key className="w-5 h-5 text-green-500" />
-                  <span className="text-base font-mono font-bold text-gray-700 tracking-wider">•••• •••• •••• {key.slice(-4)}</span>
+               <div className="flex flex-col items-center gap-4">
+                  <div className="inline-flex items-center gap-4 px-6 py-3 bg-white border border-blue-100 rounded-2xl shadow-sm">
+                     <Key className="w-5 h-5 text-blue-500" />
+                     <span className="text-base font-mono font-bold text-gray-700 tracking-wider">•••• •••• •••• {key.slice(-4)}</span>
+                  </div>
+                  
+                  <button 
+                    disabled={activating}
+                    onClick={handleDeactivate}
+                    className="text-[11px] font-black text-red-500 hover:text-red-700 uppercase tracking-widest transition-colors mt-6 pb-1 border-b border-transparent hover:border-red-200"
+                  >
+                    Disconnect License
+                  </button>
                </div>
              </div>
              
              {/* Decorative Elements */}
-             <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-100/20 rounded-full blur-3xl" />
+             <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-100/20 rounded-full blur-3xl" />
              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100/20 rounded-full blur-3xl" />
           </div>
         ) : (
@@ -79,10 +114,10 @@ const LicenseView = ({ settings, onUpdateSettings, onToast }) => {
                         value={key}
                         onChange={(e) => setKey(e.target.value)}
                         placeholder="XXXX-XXXX-XXXX-XXXX"
-                        className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-2xl text-xl font-mono focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white outline-none transition-all shadow-inner"
+                        className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-2xl text-xl font-mono focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all shadow-inner"
                       />
                       <div className="absolute right-5 top-1/2 -translate-y-1/2">
-                         <Key className="w-6 h-6 text-gray-300 group-focus-within:text-indigo-500 transition-colors" />
+                         <Key className="w-6 h-6 text-gray-300 group-focus-within:text-blue-500 transition-colors" />
                       </div>
                     </div>
                  </div>
@@ -103,7 +138,7 @@ const LicenseView = ({ settings, onUpdateSettings, onToast }) => {
                  <div className="pt-2 flex items-center gap-3 justify-center">
                     <AlertCircle className="w-4 h-4 text-amber-500" />
                     <p className="text-[11px] text-gray-500 font-bold uppercase tracking-tight">
-                      Don't have a key? <a href="https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0" target="_blank" className="text-indigo-600 font-black hover:underline underline-offset-4">Get Pro Access</a>
+                      Don't have a key? <a href="https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0" target="_blank" className="text-blue-600 font-black hover:underline underline-offset-4">Get Pro Access</a>
                     </p>
                  </div>
               </div>

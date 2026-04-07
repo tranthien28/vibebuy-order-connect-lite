@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import {
   Save, Monitor, Smartphone, ArrowLeft, ChevronRight, ChevronLeft, Check,
   Lock, AlertCircle, LayoutDashboard, Settings, HelpCircle, Zap, BarChart3,
-  ExternalLink, MessageSquare, Shield, Share2, MousePointer2
+  ExternalLink, MessageSquare, Shield, Share2, MousePointer2, CheckCircle2, TrendingUp, ShieldCheck, Eye
 } from 'lucide-react';
 
 import { CHANNELS, getChannel } from './channels/registry.jsx';
@@ -58,11 +58,11 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
       <button onClick={() => onNavigate('dashboard')} className={`vb-nav-item ${activeTab === 'dashboard' ? 'vb-nav-item--active' : ''}`}>
         <LayoutDashboard className="w-4 h-4 shrink-0" /> Dashboard
       </button>
-      <button onClick={() => onNavigate('conversations')} className={`vb-nav-item ${activeTab === 'conversations' ? 'vb-nav-item--active' : ''}`}>
+      <button onClick={() => onNavigate('inquiries')} className={`vb-nav-item ${activeTab === 'inquiries' || activeTab === 'conversations' ? 'vb-nav-item--active' : ''}`}>
         <MessageSquare className="w-4 h-4 shrink-0" /> Inquiries
       </button>
-      <button 
-        onClick={() => onNavigate('analytics')} 
+      <button
+        onClick={() => onNavigate('analytics')}
         className={`vb-nav-item ${activeTab === 'analytics' ? 'vb-nav-item--active' : ''}`}
       >
         <BarChart3 className="w-4 h-4 shrink-0" /> Analytics
@@ -75,7 +75,7 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
       </button>
       {(window.vibebuyData?.isProInstalled || settings.is_pro) && (
         <button onClick={() => onNavigate('license')} className={`vb-nav-item ${activeTab === 'license' ? 'vb-nav-item--active' : ''}`}>
-          <Shield className="w-4 h-4 shrink-0" /> License
+          <ShieldCheck className="w-4 h-4 shrink-0" /> License
         </button>
       )}
       <button onClick={() => onNavigate('help')} className={`vb-nav-item ${activeTab === 'help' ? 'vb-nav-item--active' : ''}`}>
@@ -83,7 +83,25 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
       </button>
     </nav>
     <div className="vb-sidebar-bottom">
-      {!settings.is_pro && (
+      {settings.is_pro ? (
+        <div className="mx-2 p-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-12 h-12 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+              <ShieldCheck className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">PRO ACCOUNT</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-black text-white">Verified</p>
+                <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
         <div className="vb-upgrade-box text-center">
           <p className="vb-upgrade-title">Go Pro</p>
           <p className="vb-upgrade-desc">Unlock all channels & analytics</p>
@@ -91,7 +109,7 @@ const Sidebar = ({ activeTab, onNavigate, onUpgrade, settings }) => (
         </div>
       )}
     </div>
-</aside>
+  </aside>
 );
 
 const Toast = ({ message, desc }) => (
@@ -107,7 +125,7 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
   const toggleChannel = (channelId) => {
     const activeChannels = settings.activeChannels || [];
     const isNowActive = !activeChannels.includes(channelId);
-    
+
     let newActive;
     if (settings.is_pro) {
       newActive = isNowActive
@@ -116,10 +134,10 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
     } else {
       newActive = isNowActive ? [channelId] : [];
     }
-    
+
     const updatedSettings = { ...settings, activeChannels: newActive };
     updateSetting('activeChannels', newActive);
-    
+
     // Autosave
     handleSave(updatedSettings);
   };
@@ -130,46 +148,62 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
         <h1 className="vb-page-title">
           {activeTab === 'dashboard' && 'Dashboard'}
           {activeTab === 'templates' && 'Message Templates'}
-          {activeTab === 'conversations' && 'Leads & Inquiries'}
+          {(activeTab === 'conversations' || activeTab === 'inquiries') && 'Leads & Inquiries'}
           {activeTab === 'analytics' && 'Analytics'}
           {activeTab === 'settings' && 'Global Settings'}
           {activeTab === 'help' && 'Help & Tutorials'}
           {activeTab === 'license' && 'License & Activation'}
         </h1>
         <div className="flex items-center gap-3">
-           {/* Header is now clean, version/badge moved to Sidebar Logo */}
+          {/* Header is now clean, version/badge moved to Sidebar Logo */}
         </div>
       </div>
       <div className="vb-content">
         {activeTab === 'dashboard' && (
           <>
             <div className="vb-cards-grid">
+              {/* Card 1: Active Channels */}
               <div className="vb-card">
-                <div className="vb-card-icon vb-card-icon--green"><Zap className="w-4 h-4 text-green-500" /></div>
+                <div className="vb-card-icon vb-card-icon--blue"><Zap className="w-4 h-4 text-blue-500" /></div>
                 <p className="vb-card-label">Active Channels</p>
-                <p className="vb-card-value">{settings.activeChannels?.length || 0} / {CHANNELS.length}</p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-3xl font-black text-slate-900 tracking-tight">{settings.activeChannels?.length || 0}</p>
+                  <p className="text-xs font-bold text-slate-300">/ {CHANNELS.length}</p>
+                </div>
               </div>
-              <div className="vb-card cursor-pointer border border-blue-50 hover:border-blue-100 transition-colors" onClick={() => onNavigate('conversations')}>
+
+              {/* Card 2: Total Inquiries */}
+              <div className="vb-card cursor-pointer border border-blue-50 hover:border-blue-100 transition-all group" onClick={() => onNavigate('inquiries')}>
                 <div className="vb-card-icon vb-card-icon--blue"><MessageSquare className="w-4 h-4 text-blue-500" /></div>
-                <div className="flex-1">
-                  <p className="vb-card-label">Inquiries</p>
-                  <p className="vb-card-value text-blue-600">{settings.totalConnections || 0}</p>
+                <p className="vb-card-label">Total Inquiries</p>
+                <p className="text-3xl font-black text-blue-600 tracking-tight">{settings.totalConnections || 0}</p>
+              </div>
+
+              {/* Card 3: Total Clicks */}
+              <div className="vb-card relative group overflow-hidden">
+                {!settings.is_pro && <div className="vb-card-pro-badge">PRO</div>}
+                <div className="vb-card-icon vb-card-icon--gray opacity-80 group-hover:opacity-100 transition-opacity"><MousePointer2 className="w-4 h-4 text-gray-600" /></div>
+                <p className="vb-card-label">Total Clicks</p>
+                <div className="flex items-baseline gap-2">
+                  <p className={`text-3xl font-black ${!settings.is_pro ? 'text-slate-300 blur-[2px]' : 'text-slate-800'}`}>
+                    {settings.is_pro ? (settings.totalClicks || 0) : '0'}
+                  </p>
+                  {!settings.is_pro && <span className="text-[10px] font-black text-amber-500 uppercase">Gated</span>}
                 </div>
               </div>
-              <div className="vb-card">
-                <div className="vb-card-icon vb-card-icon--red"><AlertCircle className="w-4 h-4 text-red-500" /></div>
-                <p className="vb-card-label">Inactive</p>
-                <p className="vb-card-value vb-card-value--red">{CHANNELS.length - (settings.activeChannels?.length || 0)}</p>
-              </div>
-              {!settings.is_pro && (
-                <div className="vb-card vb-card--pro cursor-pointer group" onClick={onUpgrade}>
-                  <div className="vb-card-pro-circle" />
-                  <div className="relative z-10">
-                    <p className="vb-card-label vb-card-label--white">Unlock All Features</p>
-                    <p className="vb-card-value vb-card-value--white">GO PRO</p>
-                  </div>
+
+              {/* Card 4: Conv. Rate */}
+              <div className="vb-card relative group overflow-hidden">
+                {!settings.is_pro && <div className="vb-card-pro-badge">PRO</div>}
+                <div className="vb-card-icon vb-card-icon--gray opacity-80 group-hover:opacity-100 transition-opacity"><TrendingUp className="w-4 h-4 text-blue-600" /></div>
+                <p className="vb-card-label">Conv. Rate</p>
+                <div className="flex items-baseline gap-2">
+                  <p className={`text-3xl font-black ${!settings.is_pro ? 'text-slate-300 blur-[2px]' : 'text-slate-800'}`}>
+                    {settings.is_pro ? (settings.cr || '0') + '%' : '0%'}
+                  </p>
+                  {!settings.is_pro && <span className="text-[10px] font-black text-amber-500 uppercase">Gated</span>}
                 </div>
-              )}
+              </div>
             </div>
             <div className="vb-section-card">
               <div className="vb-section-header"><h2 className="vb-section-title">Messaging Engines</h2><p className="vb-section-subtitle">Configure and manage your messaging channels</p></div>
@@ -185,7 +219,7 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
                         <div className="flex items-center gap-2">
                           <span className="vb-channel-name">{ch.name}</span>
                           {(!ch.pro || settings.is_pro) ? (
-                            <button 
+                            <button
                               onClick={() => toggleChannel(ch.id)}
                               className={`vb-toggle ${isActive ? 'vb-toggle--on' : 'vb-toggle--off'} scale-75 origin-left`}
                             >
@@ -205,16 +239,16 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
                               <Share2 className="w-2.5 h-2.5" /> DIRECT SHORTCUT
                             </span>
                           ) : (
-                            <span className="text-[9px] font-black bg-green-50 text-green-500 px-1.5 py-0.5 rounded border border-green-100 flex items-center gap-1">
+                            <span className="text-[9px] font-black bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded border border-blue-100 flex items-center gap-1">
                               <MousePointer2 className="w-2.5 h-2.5" /> LEAD INQUIRY
                             </span>
                           )}
                         </div>
                       </div>
                       {(!ch.pro || settings.is_pro) ? (
-                          <div className="flex gap-2">
-                            <button className="vb-configure-btn" onClick={() => startConfig(ch.id)}>Configure</button>
-                          </div>
+                        <div className="flex gap-2">
+                          <button className="vb-configure-btn" onClick={() => startConfig(ch.id)}>Configure</button>
+                        </div>
                       ) : (
                         <div className="flex items-center gap-2 px-4 cursor-pointer" onClick={onUpgrade}><span className="text-xs text-gray-400 font-medium whitespace-nowrap hover:text-purple-500 transition-colors">Pro Feature</span></div>
                       )}
@@ -229,12 +263,12 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
           <div className="vb-section-card mb-20">
             <div className="vb-section-header"><h2 className="vb-section-title">Global Message Template</h2><p className="vb-section-subtitle">Used by all channels by default.</p></div>
             <div className="p-6">
-              <MessageTemplateEditor 
-                value={settings.global_message_template} 
-                onChange={(val) => updateSetting('global_message_template', val)} 
+              <MessageTemplateEditor
+                value={settings.global_message_template}
+                onChange={(val) => updateSetting('global_message_template', val)}
                 isPro={settings.is_pro}
               />
-              
+
               {/* Floating Footer */}
               <div className="vb-floating-footer">
                 <button onClick={() => handleSave()} disabled={saving} className="vb-footer-save">
@@ -244,8 +278,8 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
             </div>
           </div>
         )}
-        {activeTab === 'conversations' && (
-          <ConversationsView settings={settings} onViewDetail={onViewDetail} />
+        {(activeTab === 'conversations' || activeTab === 'inquiries') && (
+          <ConversationsView settings={settings} onViewDetail={onViewDetail} onUpgrade={onUpgrade} />
         )}
         {activeTab === 'analytics' && (
           <AnalyticsView settings={settings} />
@@ -257,16 +291,16 @@ const DashboardContent = ({ activeTab, settings, updateSetting, setSettings, sta
           <HelpView onNavigate={onNavigate} initialSection={helpContext} />
         )}
         {activeTab === 'settings' && (
-          <GlobalSettingsView 
-            settings={settings} 
-            updateSetting={updateSetting} 
-            handleSave={handleSave} 
-            saving={saving} 
+          <GlobalSettingsView
+            settings={settings}
+            updateSetting={updateSetting}
+            handleSave={handleSave}
+            saving={saving}
           />
         )}
         {activeTab === 'license' && (
-          <LicenseView 
-            settings={settings} 
+          <LicenseView
+            settings={settings}
             onUpdateSettings={setSettings}
             onToast={(title, desc, type) => setToast({ message: title, desc, type })}
           />
@@ -286,7 +320,7 @@ const App = () => {
   const [editChannel, setEditChannel] = useState(() => getUrlParam('channel', 'whatsapp'));
   const [previewMode, setPreviewMode] = useState('mobile');
   const [detailId, setDetailId] = useState(() => getUrlParam('id', null));
-  const [settings, setSettings] = useState({ 
+  const [settings, setSettings] = useState({
     activeChannels: [],
     global_message_template: '',
     is_pro: window.vibebuyData?.isPro || false
@@ -315,11 +349,11 @@ const App = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const url = new URL(window.location);
-    
+
     // Always keep page=vibebuy for WP stability
     url.searchParams.set('page', 'vibebuy');
     url.searchParams.set('tab', activeTab);
-    
+
     if (activeTab === 'dashboard' && currentStep > 0) {
       url.searchParams.set('channel', editChannel);
       url.searchParams.set('step', currentStep);
@@ -333,7 +367,7 @@ const App = () => {
     } else {
       url.searchParams.delete('id');
     }
-    
+
     window.history.pushState({}, '', url);
   }, [activeTab, currentStep, editChannel, detailId]);
 
@@ -377,10 +411,10 @@ const App = () => {
           setSettings(prev => ({ ...prev, ...json.data }));
         }
         setToast({ message: 'Settings Saved', desc: 'Success!' });
-        setTimeout(() => { 
-            setToast(null); 
-            // Close wizard after save ONLY if they are on Step 3
-            if (currentStep === 3) setCurrentStep(0);
+        setTimeout(() => {
+          setToast(null);
+          // Close wizard after save ONLY if they are on Step 3
+          if (currentStep === 3) setCurrentStep(0);
         }, 2000);
       }
     } catch (e) {
@@ -448,12 +482,12 @@ const App = () => {
             </header>
 
             <div className="vb-step-bar pb-8 border-b border-gray-100 mb-8">
-               <p className="text-xs font-medium text-gray-400">Branding and display settings have been moved to the <span className="text-blue-500 font-bold">Global Settings</span> tab for a unified experience.</p>
+              <p className="text-xs font-medium text-gray-400">Branding and display settings have been moved to the <span className="text-blue-500 font-bold">Global Settings</span> tab for a unified experience.</p>
             </div>
 
             <main className="p-8">
               <div className="flex flex-col lg:flex-row gap-8">
-                
+
                 {/* Left: Configuration Form */}
                 <div className="flex-1 space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
                   <div className="vb-section-card p-0 overflow-visible">
@@ -489,37 +523,37 @@ const App = () => {
                         </div>
                         {!settings.is_pro && (
                           <div className="bg-amber-400 text-white px-2 py-0.5 rounded text-[8px] font-black shadow-sm uppercase tracking-tighter">
-                             PRO ONLY
+                            PRO ONLY
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
                           <div className="flex-1">
                             <p className="text-sm font-bold text-gray-800 mb-1">Show as Floating Shortcut</p>
                             <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
-                              { (editChannel === 'tiktok' || editChannel === 'instagram') 
-                                  ? 'TikTok and Instagram always use this mode to ensure compatibility.'
-                                  : 'Enable this to show the icon as a secondary shortcut floating bar, skipping the lead form.'
+                              {(editChannel === 'tiktok' || editChannel === 'instagram')
+                                ? 'TikTok and Instagram always use this mode to ensure compatibility.'
+                                : 'Enable this to show the icon as a secondary shortcut floating bar, skipping the lead form.'
                               }
                             </p>
                           </div>
-                          <button 
+                          <button
                             disabled={!settings.is_pro}
                             onClick={() => updateSetting(`${editChannel}_show_as_shortcut`, !settings[`${editChannel}_show_as_shortcut`])}
-                            className={`vb-toggle ${ (settings[`${editChannel}_show_as_shortcut`] || editChannel === 'tiktok' || editChannel === 'instagram') ? 'vb-toggle--on' : 'vb-toggle--off'} ${!settings.is_pro ? 'grayscale opacity-50' : ''}`}
+                            className={`vb-toggle ${(settings[`${editChannel}_show_as_shortcut`] || editChannel === 'tiktok' || editChannel === 'instagram') ? 'vb-toggle--on' : 'vb-toggle--off'} ${!settings.is_pro ? 'grayscale opacity-50' : ''}`}
                           >
-                            <div className={`vb-toggle-thumb ${ (settings[`${editChannel}_show_as_shortcut`] || editChannel === 'tiktok' || editChannel === 'instagram') ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                            <div className={`vb-toggle-thumb ${(settings[`${editChannel}_show_as_shortcut`] || editChannel === 'tiktok' || editChannel === 'instagram') ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
                           </button>
                         </div>
-                        
+
                         {!settings.is_pro && (
                           <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                             <Lock className="w-3.5 h-3.5 text-amber-500" />
-                             <p className="text-[10px] text-amber-800 font-bold italic">
-                               Upgrade to PRO to unlock shortcut bars and custom placement logic.
-                             </p>
+                            <Lock className="w-3.5 h-3.5 text-amber-500" />
+                            <p className="text-[10px] text-amber-800 font-bold italic">
+                              Upgrade to PRO to unlock shortcut bars and custom placement logic.
+                            </p>
                           </div>
                         )}
                       </div>
@@ -531,23 +565,23 @@ const App = () => {
                 <div className="lg:w-[320px] shrink-0">
                   <div className="sticky top-8 space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
                     <div className="flex items-center justify-between px-1">
-                       <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em]">Live Preview</h3>
-                       <div className="bg-gray-100 p-1 rounded-xl shadow-inner flex items-center gap-1">
-                          <button 
-                            onClick={() => setPreviewMode('mobile')}
-                            className={`p-1.5 rounded-lg transition-all ${previewMode === 'mobile' ? 'bg-white shadow-sm text-blue-600 border border-gray-100' : 'text-gray-400 opacity-40'}`}
-                          >
-                            <Smartphone className="w-3.5 h-3.5" />
-                          </button>
-                          <button 
-                            onClick={() => setPreviewMode('desktop')}
-                            className={`p-1.5 rounded-lg transition-all ${previewMode === 'desktop' ? 'bg-white shadow-sm text-blue-600 border border-gray-100' : 'text-gray-400 opacity-40'}`}
-                          >
-                            <Monitor className="w-3.5 h-3.5" />
-                          </button>
-                       </div>
+                      <h3 className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em]">Live Preview</h3>
+                      <div className="bg-gray-100 p-1 rounded-xl shadow-inner flex items-center gap-1">
+                        <button
+                          onClick={() => setPreviewMode('mobile')}
+                          className={`p-1.5 rounded-lg transition-all ${previewMode === 'mobile' ? 'bg-white shadow-sm text-blue-600 border border-gray-100' : 'text-gray-400 opacity-40'}`}
+                        >
+                          <Smartphone className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setPreviewMode('desktop')}
+                          className={`p-1.5 rounded-lg transition-all ${previewMode === 'desktop' ? 'bg-white shadow-sm text-blue-600 border border-gray-100' : 'text-gray-400 opacity-40'}`}
+                        >
+                          <Monitor className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                    
+
                     <div className="bg-slate-50 rounded-[2rem] p-3 border border-slate-100 flex items-center justify-center relative overflow-hidden shadow-inner">
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
                       <div className="relative z-10 w-full flex justify-center">
@@ -556,12 +590,12 @@ const App = () => {
                     </div>
 
                     <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                          <Eye className="w-3 h-3 text-blue-500" /> Visual Context
-                       </p>
-                       <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
-                          The preview reflects your current <strong>{channel.name}</strong> configuration alongside global branding settings.
-                       </p>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <Eye className="w-3 h-3 text-blue-500" /> Visual Context
+                      </p>
+                      <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+                        The preview reflects your current <strong>{channel.name}</strong> configuration alongside global branding settings.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -575,7 +609,7 @@ const App = () => {
               >
                 <ChevronLeft className="w-4 h-4" /> Exit
               </button>
-              
+
               <div className="flex items-center gap-4">
                 <div className="flex gap-2">
                   <button
@@ -593,11 +627,11 @@ const App = () => {
         )}
       </div>
 
-      <ProUpgradeModal 
-        isOpen={showUpgradeModal} 
-        onClose={() => setShowUpgradeModal(false)} 
+      <ProUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
       />
-      
+
       {toast && <Toast {...toast} />}
     </div>
   );

@@ -22,15 +22,15 @@ const PricingTable = () => {
 
         {/* PRO COLUMN */}
         <div className="vb-pricing-col-pro relative">
-          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap">
-            EARLY BIRD - 40% OFF
+          <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap uppercase">
+            SPECIAL LAUNCH - 50% OFF
           </div>
           
           <div className="p-4 border-b border-purple-100 mb-2 h-[90px] flex flex-col justify-center bg-purple-50/50">
             <h4 className="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1">Pro</h4>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400 line-through font-bold">$59</span>
-              <p className="text-2xl font-black text-purple-600">$39</p>
+              <span className="text-xs text-gray-400 line-through font-bold">$39</span>
+              <p className="text-2xl font-black text-purple-600">$19</p>
             </div>
             <p className="text-[9px] text-purple-400">One-time Access</p>
           </div>

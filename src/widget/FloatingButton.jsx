@@ -147,21 +147,38 @@ const checkVisibility = (settings, productData) => {
 
     // Analytics: Click
     trackEvent('click', channelId, product?.id || 0);
-    
-    const modalEnabled = settings.orderModal_enabled !== false;
-    const autoOff = settings.orderModal_autoOff === true; // Explicitly on, default to false in logic for better testing
 
-    // Only WhatsApp Lite REQUIRES a redirect link to reach admin
-    if (!modalEnabled || (autoOff && hasSubmitted)) {
-      if (channelId === 'whatsapp') {
-        const link = getChannelLink(channelId, settings, product, manualData);
-        if (link !== '#') window.open(link, '_blank');
-      } else {
-        // For bypass, if modal is OFF, we still need to open the link so the button isn't "dead"
-        // But for Telegram/Discord, the primary value is the bot/webhook notification
-        const link = getChannelLink(channelId, settings, product, manualData);
+    // 1. Context Check (PRO/Lite Logic)
+    // If it's a product page or a listing card, we use the Order Modal
+    const isProductContext = !!(product?.id || manualData?.id || (product?.name && product?.url));
+
+    // If it's a global context (Homepage, Blog, etc.) and NOT a product/listing
+    // The user wants an immediate redirect to contact - skip the modal
+    if (!isProductContext) {
+      // Find the best channel to redirect to
+      let targetId = channelId || 'global';
+      if (targetId === 'global') {
+        const activeChannels = settings.activeChannels || [];
+        targetId = activeChannels.find(id => id === 'whatsapp')
+                || activeChannels.find(id => id === 'zalo')
+                || activeChannels.find(id => id === 'messenger')
+                || activeChannels[0];
+      }
+
+      if (targetId) {
+        const link = getChannelLink(targetId, settings, product, manualData);
         if (link !== '#') window.open(link, '_blank');
       }
+      return;
+    }
+
+    const modalEnabled = settings.orderModal_enabled !== false;
+    const autoOff = settings.orderModal_autoOff === true;
+
+    // Standard product/listing context below - use modal if enabled
+    if (!modalEnabled || (autoOff && hasSubmitted)) {
+      const link = getChannelLink(channelId === 'global' ? 'whatsapp' : channelId, settings, product, manualData);
+      if (link !== '#') window.open(link, '_blank');
       return;
     }
 

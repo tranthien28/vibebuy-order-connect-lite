@@ -33,6 +33,7 @@ const PreviewWidget = ({ settings, previewMode, editChannel }) => {
   const iconUrl = get('iconUrl', '');
   const position = get('wooAutoInject', 'before_cart');
   const layout = get('layout', 'stacked');
+  const fontSize = get('fontSize', 14);
 
   const ChannelIcon = () => {
     if (iconUrl) return <img src={iconUrl} alt="" className="w-4 h-4 object-cover rounded-full" />;
@@ -43,8 +44,8 @@ const PreviewWidget = ({ settings, previewMode, editChannel }) => {
 
   const VibeButton = (
     <button
-      className={`flex items-center justify-center gap-2 py-3 font-semibold text-sm transition-all ${layout === 'inline' ? 'flex-1' : 'w-full'}`}
-      style={{ backgroundColor: bgColor, color: textColor, borderRadius: `${borderRadius}px` }}
+      className={`flex items-center justify-center gap-2 py-3 font-semibold transition-all ${layout === 'inline' ? 'flex-1' : 'w-full'}`}
+      style={{ backgroundColor: bgColor, color: textColor, borderRadius: `${borderRadius}px`, fontSize: `${fontSize}px` }}
     >
       <ChannelIcon />
       {buttonText}
@@ -52,7 +53,7 @@ const PreviewWidget = ({ settings, previewMode, editChannel }) => {
   );
 
   const AddToCartButton = (
-    <button className={`bg-gray-900 text-white py-3 font-semibold text-sm rounded-lg ${layout === 'inline' ? 'flex-1' : 'w-full'}`}>
+    <button className={`bg-gray-900 text-white py-3 font-semibold rounded-lg ${layout === 'inline' ? 'flex-1' : 'w-full'}`} style={{ fontSize: `${fontSize}px` }}>
       Add to Cart
     </button>
   );

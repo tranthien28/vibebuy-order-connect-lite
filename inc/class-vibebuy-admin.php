@@ -107,6 +107,7 @@ class VibeBuy_Admin
 			'apiUrl' => esc_url_raw(rest_url('vibebuy/v1/')),
 			'nonce' => wp_create_nonce('wp_rest'),
 			'homeUrl' => home_url('/'),
+			'proLink' => esc_url(VIBEBUY_PRO_LINK),
 			'locale' => determine_locale(),
 			'lang' => defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : '',
 			'isProInstalled' => vibebuy_is_pro_installed(),

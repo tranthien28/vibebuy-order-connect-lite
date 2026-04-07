@@ -14,14 +14,15 @@
  */
 
 // Prevent direct access.
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
 // Define Constants.
-define( 'VIBEBUY_VERSION', '1.0.3' );
-define( 'VIBEBUY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'VIBEBUY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define('VIBEBUY_VERSION', '1.0.3');
+define('VIBEBUY_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('VIBEBUY_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('VIBEBUY_PRO_LINK', 'https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0');
 
 /**
  * Initialize the Plugin via the Loader.
@@ -40,19 +41,15 @@ require_once VIBEBUY_PLUGIN_DIR . 'inc/class-vibebuy-license.php';
 /**
  * Initialize the Plugin via the Loader.
  */
-function vibebuy_init() {
-	// Register built-in channels
+function vibebuy_init()
+{
+	// Register core messaging channels.
+	VibeBuy_Channel_Registry::register(new VibeBuy_Channel_WhatsApp());
+	VibeBuy_Channel_Registry::register(new VibeBuy_Channel_Telegram());
+	VibeBuy_Channel_Registry::register(new VibeBuy_Channel_Discord());
+	VibeBuy_Channel_Registry::init();
 
-	// Register built-in channels
-	VibeBuy_Channel_Registry::register( new VibeBuy_Channel_WhatsApp() );
-	VibeBuy_Channel_Registry::register( new VibeBuy_Channel_Telegram() );
-	VibeBuy_Channel_Registry::register( new VibeBuy_Channel_Discord() );
-	VibeBuy_Channel_Registry::init(); // Fire 'vibebuy_register_channels' hook
-
-	// 1.5 Init License (Unlock Pro filters)
-	( new VibeBuy_License() )->init();
-
-	// 2. Load and Init Central Loader
+	// Load and Init Central Loader.
 	require_once VIBEBUY_PLUGIN_DIR . 'inc/class-vibebuy-loader.php';
 	$loader = new VibeBuy_Loader();
 	$loader->init();
@@ -60,38 +57,55 @@ function vibebuy_init() {
 /**
  * Add "Get Pro" link to the plugin action links.
  */
-function vibebuy_plugin_action_links( $links ) {
-	if ( ! vibebuy_is_pro() ) {
-		$get_pro_link = '<a href="https://vibebuy.com" target="_blank" style="color: #2271b1; font-weight: bold;">' . __( 'Get Pro', 'vibebuy-order-connect-lite' ) . '</a>';
-		array_unshift( $links, $get_pro_link );
+function vibebuy_plugin_action_links($links)
+{
+	if (!vibebuy_is_pro()) {
+		$get_pro_link = '<a href="https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0" target="_blank" style="color: #6366f1; font-weight: bold;">' . __('Get Pro', 'vibebuy-order-connect-lite') . '</a>';
+		array_unshift($links, $get_pro_link);
 	}
 	return $links;
 }
-add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'vibebuy_plugin_action_links' );
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'vibebuy_plugin_action_links');
 
-add_action( 'plugins_loaded', 'vibebuy_init' );
+add_action('plugins_loaded', 'vibebuy_init');
 
 /**
  * Register Activation Hook for Table Creation.
  */
-register_activation_hook( __FILE__, array( 'VibeBuy_DB', 'create_table' ) );
+register_activation_hook(__FILE__, array('VibeBuy_DB', 'create_table'));
 
 // --- Global Helpers ---
-if ( ! function_exists( 'vibebuy_is_pro' ) ) {
+if (!function_exists('vibebuy_is_pro')) {
 	/**
 	 * Centralized check for Pro status.
 	 * Allows Lite to remain clean while Pro hooks in to unlock features.
 	 */
-	function vibebuy_is_pro() {
-		return apply_filters( 'vibebuy_is_pro', false );
+	function vibebuy_is_pro()
+	{
+		static $is_pro = null;
+		if (null === $is_pro) {
+			$is_pro = false;
+			// DOUBLE-LOCK: Only return true if BOTH the license is active 
+			// AND the VibeBuy PRO expansion plugin is currently active.
+			if (class_exists('VibeBuy_License')) {
+				$is_pro = VibeBuy_License::is_pro() && vibebuy_is_pro_installed();
+			}
+		}
+
+		return apply_filters('vibebuy_is_pro', $is_pro);
 	}
 }
 
-if ( ! function_exists( 'vibebuy_is_pro_installed' ) ) {
+if (!function_exists('vibebuy_is_pro_installed')) {
 	/**
 	 * Check if Pro plugin is present (regardless of license status).
 	 */
-	function vibebuy_is_pro_installed() {
-		return apply_filters( 'vibebuy_is_pro_installed', false );
+	function vibebuy_is_pro_installed()
+	{
+		static $is_installed = null;
+		if (null === $is_installed) {
+			$is_installed = apply_filters('vibebuy_is_pro_installed', false);
+		}
+		return $is_installed;
 	}
 }

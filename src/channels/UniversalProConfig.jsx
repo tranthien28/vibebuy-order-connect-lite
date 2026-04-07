@@ -50,9 +50,9 @@ const UniversalProConfig = ({ channel, settings, updateSetting, onNavigate }) =>
           <label className="text-[11px] font-black uppercase text-gray-400 tracking-widest">
             {isZalo ? 'Zalo Number / ID' : isMessenger ? 'Messenger Page ID' : 'Channel ID'}
           </label>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-50 rounded-full border border-green-100">
-             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping" />
-             <span className="text-[8px] font-black text-green-600 uppercase">Verified</span>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 rounded-full border border-blue-100">
+             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
+             <span className="text-[8px] font-black text-blue-600 uppercase">Verified</span>
           </div>
         </div>
         

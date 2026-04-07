@@ -1,7 +1,65 @@
 import React from 'react';
-import { X, Shield, ArrowRight, ExternalLink } from 'lucide-react';
+import { X, Shield, ArrowRight, ExternalLink, Clock } from 'lucide-react';
 import BenefitList from './BenefitList.jsx';
 import PricingTable from './PricingTable.jsx';
+
+const PromotionCountdown = () => {
+  const [timeLeft, setTimeLeft] = React.useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  React.useEffect(() => {
+    const targetDate = new Date('2026-07-31T23:59:59').getTime();
+    
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      
+      if (distance < 0) {
+        clearInterval(timer);
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="mb-4 p-3 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-center justify-center gap-4 shadow-sm animate-in fade-in zoom-in duration-700">
+      <div className="flex items-center gap-2">
+         <div className="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-200">
+            <Clock className="w-4 h-4 text-white animate-pulse" />
+         </div>
+         <div className="text-left">
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] leading-tight mb-0.5">Price Expansion Countdown</p>
+            <p className="text-[9px] text-gray-400 font-bold leading-tight italic">Price jumps to $39 on August 1st</p>
+         </div>
+      </div>
+      
+      <div className="flex items-center gap-2">
+         {[
+           { val: timeLeft.days, label: 'd' },
+           { val: timeLeft.hours, label: 'h' },
+           { val: timeLeft.minutes, label: 'm' },
+           { val: timeLeft.seconds, label: 's' }
+         ].map((unit, idx) => (
+           <React.Fragment key={unit.label}>
+             <div className="flex flex-col items-center">
+                <span className="text-base font-black text-slate-800 tabular-nums leading-none">{unit.val.toString().padStart(2, '0')}</span>
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{unit.label}</span>
+             </div>
+             {idx < 3 && <span className="text-slate-300 font-bold -mt-2">:</span>}
+           </React.Fragment>
+         ))}
+      </div>
+    </div>
+  );
+};
 
 const ProUpgradeModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -45,12 +103,13 @@ const ProUpgradeModal = ({ isOpen, onClose }) => {
                 with high-end messaging automation.
               </p>
 
+              <PromotionCountdown />
               <PricingTable />
             </div>
 
             <div className="mt-6">
               <button 
-                onClick={() => window.open('https://vibebuy.lemonsqueezy.com/checkout/buy/873a7dcf-83e1-4893-b5ed-df7009298e2d?logo=0', '_blank')}
+                onClick={() => window.open(window.vibebuyData?.proLink || 'https://vibebuy.com', '_blank')}
                 className="vb-upgrade-cta-btn group py-3 text-sm"
               >
                 Get Pro Access Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
