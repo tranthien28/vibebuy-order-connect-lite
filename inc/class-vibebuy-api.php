@@ -139,14 +139,18 @@ class VibeBuy_API
 		}
 		$settings['availableStatuses'] = $available_statuses;
 
+		// Add WordPress Timezone & Server Time for accurate Business Schedule
+		$settings['shop_timezone'] = get_option('timezone_string') ?: get_option('gmt_offset');
+		$settings['server_time_now'] = current_time('Y-m-d H:i:s');
+
 		// Enforce Lite limit: Only 1 active channel allowed
 		if (!apply_filters('vibebuy_enforce_lite_limits', true) && count($settings['activeChannels'] ?? []) > 1) {
 			$settings['activeChannels'] = array_slice(array_filter($settings['activeChannels']), 0, 1);
 		}
 
-		return rest_ensure_response(wp_parse_args($settings, array_merge($defaults, array(
+		return wp_parse_args($settings, array_merge($defaults, array(
 			'totalConnections' => 0,
-		))));
+		)));
 	}
 
 	public function save_settings(WP_REST_Request $request)

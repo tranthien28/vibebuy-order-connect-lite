@@ -93,25 +93,32 @@ const checkVisibility = (settings, productData) => {
  
    // 2. Business Schedule Check
    if (settings.businessHours_enabled) {
-     const now = new Date();
-     
-     // a. Day check
-     const currentDay = now.getDay();
+     // Use synchronized Shop Time instead of visitor's local time
+     let now = new Date();
+     if (settings.server_time_now) {
+       const serverTimeAtLoad = new Date(settings.server_time_now.replace(/-/g, '/')).getTime();
+       const clientTimeAtLoad = window.vibebuy_init_time || Date.now();
+       const timeDiff = serverTimeAtLoad - clientTimeAtLoad;
+       now = new Date(Date.now() + timeDiff);
+     }
+
+     // a. Day check (Mon-Sun)
+     const currentDay = now.getDay(); // 0 = Sun, 1 = Mon...
      const dayId = `businessHours_day_${currentDay}`;
-     const isDayActive = settings[dayId] !== undefined ? settings[dayId] : true;
-     if (!isDayActive) return false;
- 
+     const isDayEnabled = settings[dayId] !== false; // Pro granular toggle
+     if (!isDayEnabled) return false;
+
      // b. Date check (Holiday)
-     const currentStrDate = now.toISOString().split('T')[0];
+     const currentStrDate = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
      const excludedDates = (settings.businessHours_dates || '').split(',').map(d => d.trim());
      if (excludedDates.includes(currentStrDate)) return false;
- 
-     // c. Time check
+
+     // c. Time check (Granular)
      const currentStrTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-     const start = settings.businessHours_start || '08:00';
-     const end = settings.businessHours_end || '18:00';
+     const dayStart = settings[`businessHours_day_${currentDay}_start`] || '08:00';
+     const dayEnd = settings[`businessHours_day_${currentDay}_end`] || '18:00';
   
-     if (currentStrTime < start || currentStrTime > end) return false;
+     if (currentStrTime < dayStart || currentStrTime > dayEnd) return false;
    }
  
    // 3. Stock Level Check

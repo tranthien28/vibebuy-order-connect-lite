@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Smartphone, Monitor, Palette, Eye, Check, Layout, Target, XCircle, CheckCircle, Lock, Plus, ExternalLink, Globe, ShoppingBag, Download, Share2 } from 'lucide-react';
+import { Save, Smartphone, Monitor, Palette, Eye, Check, Layout, Target, XCircle, CheckCircle, Lock, Plus, ExternalLink, Globe, ShoppingBag, Download, Share2, AlertCircle } from 'lucide-react';
 import PreviewWidget from './PreviewWidget.jsx';
 
 const PRESET_COLORS = [
@@ -189,7 +189,6 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                   ))}
                 </div>
 
-                {/* PRO Smart Responsive */}
                 {!settings.is_pro && (
                   <div className="mt-3 flex items-center justify-between p-3 rounded-2xl border border-dashed border-gray-100 bg-gray-50/30 opacity-70">
                     <div className="flex items-center gap-3">
@@ -255,16 +254,22 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
 
             {/* 2.5 Shortcut Bar Positioning (PRO) */}
-            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-blue-100 bg-blue-50/10'}`}>
+            <section className={`space-y-6 p-6 rounded-3xl border transition-all ${!settings.is_pro ? 'border-dashed border-gray-200 bg-gray-50/30' : 'border-solid border-gray-100 bg-white shadow-sm'}`}>
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Share2 className={`w-4 h-4 ${settings.is_pro ? 'text-blue-500' : 'text-gray-400'}`} />
+                  <div className={`p-1.5 rounded-lg ${settings.is_pro ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                    <Share2 className="w-4 h-4" />
+                  </div>
                   <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
-                    Social Shortcut Bar {settings.is_pro ? '' : '(PRO)'}
+                    Social Shortcut Bar
                   </h3>
                 </div>
-                {!settings.is_pro && (
-                  <span className="bg-amber-400 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm uppercase">PRO</span>
+                {settings.is_pro ? (
+                    <div className="flex items-center gap-1.5 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-widest">
+                       <Check className="w-2.5 h-2.5" /> PRO VERIFIED
+                    </div>
+                ) : (
+                    <span className="bg-amber-400 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm uppercase">PRO REQUIRED</span>
                 )}
               </div>
 
@@ -389,14 +394,21 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
             
             {/* 3.2 Order & Conversion (NEW) */}
-            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-blue-100 bg-blue-50/10'}`}>
+            <section className={`space-y-6 p-6 rounded-3xl border transition-all ${!settings.is_pro ? 'border-dashed border-gray-200 bg-gray-50/30' : 'border-solid border-gray-100 bg-white shadow-sm'}`}>
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className={`w-4 h-4 ${settings.is_pro ? 'text-blue-600' : 'text-gray-400'}`} />
+                   <div className={`p-1.5 rounded-lg ${settings.is_pro ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
                   <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
                     Order & Conversion
                   </h3>
                 </div>
+                {settings.is_pro && (
+                   <div className="flex items-center gap-1.5 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-widest">
+                       <Check className="w-2.5 h-2.5" /> PRO VERIFIED
+                    </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -482,16 +494,20 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
 
             {/* 3.5 Branding Settings (PRO) */}
-            <section className={`space-y-6 p-6 rounded-3xl border border-dashed transition-all ${!settings.is_pro ? 'border-gray-200 bg-gray-50/30' : 'border-blue-100 bg-blue-50/10'}`}>
+            <section className={`space-y-6 p-6 rounded-3xl border transition-all ${!settings.is_pro ? 'border-dashed border-gray-200 bg-gray-50/30' : 'border-solid border-gray-100 bg-white shadow-sm'}`}>
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Eye className={`w-4 h-4 ${settings.is_pro ? 'text-blue-500' : 'text-gray-400'}`} />
+                   <div className={`p-1.5 rounded-lg ${settings.is_pro ? 'bg-blue-50 text-blue-500' : 'bg-gray-100 text-gray-400'}`}>
+                    <Eye className="w-4 h-4" />
+                  </div>
                   <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
-                    Branding & Whitelabel {settings.is_pro ? '' : '(PRO)'}
+                    Branding & Whitelabel
                   </h3>
                 </div>
-                {!settings.is_pro && (
-                  <span className="bg-amber-400 text-white text-[9px] font-black px-2 py-0.5 rounded shadow-sm uppercase">PRO</span>
+                {settings.is_pro && (
+                    <div className="flex items-center gap-1.5 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-widest">
+                       <Check className="w-2.5 h-2.5" /> PRO VERIFIED
+                    </div>
                 )}
               </div>
 
@@ -521,18 +537,21 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
             </section>
 
             {/* 4. Visibility & Conditions (PRO) */}
-            <section className="space-y-6 bg-slate-50/50 p-6 rounded-3xl border border-gray-100 relative overflow-hidden">
-              {!settings.is_pro && (
-                <div className="absolute top-4 right-4 flex items-center gap-1 bg-amber-400 text-white px-2 py-0.5 rounded-full shadow-sm">
-                  <Lock className="w-2.5 h-2.5" />
-                  <span className="bg-amber-400 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">PRO</span>
+            <section className={`space-y-6 p-6 rounded-3xl border transition-all ${!settings.is_pro ? 'border-dashed border-gray-200 bg-gray-50/30' : 'border-solid border-gray-100 bg-white shadow-sm'}`}>
+               <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                   <div className={`p-1.5 rounded-lg ${settings.is_pro ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-gray-900' : 'text-gray-500'}`}>
+                    Advanced Targeting
+                  </h3>
                 </div>
-              )}
-
-              <div className="pb-2 border-b border-gray-100">
-                <h3 className={`text-xs font-black uppercase tracking-widest ${settings.is_pro ? 'text-blue-600' : 'text-gray-400'}`}>
-                  Advanced Targeting {settings.is_pro ? '(UNLOCKED)' : '(PRO)'}
-                </h3>
+                {settings.is_pro && (
+                    <div className="flex items-center gap-1.5 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase tracking-widest">
+                       <Check className="w-2.5 h-2.5" /> PRO VERIFIED
+                    </div>
+                )}
               </div>
 
               <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all ${!settings.is_pro ? 'opacity-40 grayscale cursor-not-allowed pointer-events-none' : ''}`}>
@@ -618,61 +637,114 @@ const GlobalSettingsView = ({ settings, updateSetting, handleSave, saving }) => 
                   <div className="space-y-3">
                     <label className={labelClass}>Business Schedule</label>
                     <div className="space-y-3">
-                      <div className={`p-2.5 bg-white rounded-lg border border-gray-200 flex items-center justify-between ${settings.businessHours_enabled ? 'border-blue-200 bg-blue-50' : ''}`}>
-                        <span className="text-[10px] font-bold text-gray-700">Show active hours only</span>
+                       <div className={`p-5 rounded-2xl border transition-all flex items-center justify-between ${settings.businessHours_enabled ? 'bg-blue-600 border-blue-700 text-white shadow-lg' : 'bg-white border-gray-100 shadow-sm text-gray-900'}`}>
+                        <div className="flex items-center gap-4">
+                           <div className={`p-2.5 rounded-xl ${settings.businessHours_enabled ? 'bg-white/20 text-white shadow-inner' : 'bg-blue-50 text-blue-600'}`}>
+                              {settings.businessHours_enabled ? <CheckCircle className="w-5 h-5 animate-pulse" /> : <Lock className="w-5 h-5" />}
+                           </div>
+                           <div>
+                              <p className={`text-xs font-black uppercase tracking-widest ${settings.businessHours_enabled ? 'text-white' : 'text-gray-900'}`}>
+                                 {settings.businessHours_enabled ? 'Scheduled Mode Active' : 'Always Online (24/7)'}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                 <p className={`text-[10px] font-bold uppercase ${settings.businessHours_enabled ? 'text-blue-100' : 'text-gray-400'}`}>
+                                    {settings.businessHours_enabled ? 'Relative to Shop Timezone:' : 'Widget is visible anytime'}
+                                 </p>
+                                 {settings.businessHours_enabled && (
+                                    <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter">
+                                       {settings.shop_timezone || 'UTC+0'}
+                                    </span>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
                         <button
-                          disabled={!settings.is_pro}
-                          onClick={() => updateSetting('businessHours_enabled', !settings.businessHours_enabled)}
-                          className={`vb-toggle-sm ${settings.businessHours_enabled ? 'vb-toggle--on' : 'vb-toggle--off'}`}
+                          type="button"
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             updateSetting('businessHours_enabled', !settings.businessHours_enabled);
+                          }}
+                          className={`vb-toggle ${settings.businessHours_enabled ? 'vb-toggle--on' : 'vb-toggle--off'} scale-90 border-2 ${settings.businessHours_enabled ? 'border-white/20' : 'border-transparent'}`}
                         >
-                          <div className="vb-toggle-thumb-sm" />
+                          <div className={`vb-toggle-thumb ${settings.businessHours_enabled ? 'vb-toggle-thumb--on bg-white' : 'vb-toggle-thumb--off bg-gray-300'}`} />
                         </button>
                       </div>
 
                       {settings.businessHours_enabled && settings.is_pro && (
-                      <div className={`p-4 bg-white/80 rounded-2xl border border-gray-100 space-y-5 transition-all ${(!settings.businessHours_enabled || !settings.is_pro) ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-                          <div className="space-y-2">
-                             <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider">Active Days</p>
-                             <div className="flex justify-between gap-1">
-                                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
-                                   const dayId = `businessHours_day_${idx}`;
-                                   const isSelected = settings[dayId] !== undefined ? settings[dayId] : true;
-                                   return (
-                                      <button
-                                         key={day}
-                                         type="button"
-                                         onClick={() => updateSetting(dayId, !isSelected)}
-                                         className={`w-8 h-8 rounded-full border text-[10px] font-black flex items-center justify-center transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-100' : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'}`}
-                                      >
-                                         {day[0]}
-                                      </button>
-                                   );
-                                })}
-                             </div>
+                      <div className="p-4 bg-white rounded-2xl border border-gray-100 space-y-4 shadow-sm">
+                          <div className="flex items-center justify-between pb-2 border-b border-gray-50">
+                             <p className="text-[10px] font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+                                Weekly Schedule (7-Day Granular)
+                             </p>
+                             <button 
+                                type="button"
+                                onClick={(e) => {
+                                   e.stopPropagation();
+                                   const start = settings.businessHours_day_1_start || '08:00';
+                                   const end = settings.businessHours_day_1_end || '18:00';
+                                   const newSettings = {};
+                                   for(let i=0; i<=6; i++) {
+                                      newSettings[`businessHours_day_${i}`] = true; // Use the day key directly
+                                      newSettings[`businessHours_day_${i}_start`] = start;
+                                      newSettings[`businessHours_day_${i}_end`] = end;
+                                   }
+                                   Object.entries(newSettings).forEach(([k, v]) => updateSetting(k, v));
+                                }}
+                                className="text-[9px] font-black uppercase text-blue-600 hover:text-blue-700 underline decoration-dotted"
+                             >
+                                sync all to Mon
+                             </button>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="p-2 bg-white rounded-lg border border-gray-100">
-                              <label className="text-[9px] font-black uppercase text-gray-400 mb-1 block">Start Time</label>
-                              <input 
-                                type="time" 
-                                value={settings.businessHours_start || '08:00'}
-                                onChange={(e) => updateSetting('businessHours_start', e.target.value)}
-                                className="w-full bg-transparent border-none text-[11px] font-black focus:outline-none p-0"
-                              />
-                            </div>
-                            <div className="p-2 bg-white rounded-lg border border-gray-100">
-                              <label className="text-[9px] font-black uppercase text-gray-400 mb-1 block">End Time</label>
-                              <input 
-                                type="time" 
-                                value={settings.businessHours_end || '18:00'}
-                                onChange={(e) => updateSetting('businessHours_end', e.target.value)}
-                                className="w-full bg-transparent border-none text-[11px] font-black focus:outline-none p-0"
-                              />
-                            </div>
+                          <div className="space-y-1.5">
+                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
+                                const dayId = `businessHours_day_${idx}`;
+                                const starts = `businessHours_day_${idx}_start`;
+                                const ends = `businessHours_day_${idx}_end`;
+                                const isEnabled = settings[dayId] !== false; 
+                                
+                                return (
+                                   <div key={day} className={`flex items-center gap-3 p-2 rounded-xl transition-all ${isEnabled ? 'bg-gray-50/50' : 'opacity-40 grayscale'}`}>
+                                      <div className="flex items-center gap-3 w-20">
+                                         <button
+                                            type="button"
+                                            onClick={(e) => {
+                                               e.stopPropagation();
+                                               updateSetting(dayId, !isEnabled);
+                                            }}
+                                            className={`vb-toggle ${isEnabled ? 'vb-toggle--on' : 'vb-toggle--off'} scale-[0.65] origin-left`}
+                                         >
+                                            <div className={`vb-toggle-thumb ${isEnabled ? 'vb-toggle-thumb--on' : 'vb-toggle-thumb--off'}`} />
+                                         </button>
+                                         <span className={`text-[10px] font-black uppercase ${isEnabled ? 'text-gray-900' : 'text-gray-400'}`}>{day}</span>
+                                      </div>
+
+                                      <div className="flex-1 grid grid-cols-2 gap-2">
+                                         <div className="flex items-center gap-2 px-2 py-1 bg-white border border-gray-100 rounded-lg">
+                                            <span className="text-[8px] font-black text-gray-300 uppercase">IN</span>
+                                            <input 
+                                               type="time" 
+                                               value={settings[starts] || '08:00'}
+                                               onChange={(e) => updateSetting(starts, e.target.value)}
+                                               className="w-full bg-transparent border-none text-[11px] font-black text-gray-700 outline-none p-0"
+                                            />
+                                         </div>
+                                         <div className="flex items-center gap-2 px-2 py-1 bg-white border border-gray-100 rounded-lg">
+                                            <span className="text-[8px] font-black text-gray-300 uppercase">OUT</span>
+                                            <input 
+                                               type="time" 
+                                               value={settings[ends] || '18:00'}
+                                               onChange={(e) => updateSetting(ends, e.target.value)}
+                                               className="w-full bg-transparent border-none text-[11px] font-black text-gray-700 outline-none p-0"
+                                            />
+                                         </div>
+                                      </div>
+                                   </div>
+                                );
+                             })}
                           </div>
 
-                          <div className="space-y-2">
+                          <div className="pt-4 border-t border-gray-50 space-y-2">
                              <p className="text-[9px] font-black uppercase text-gray-500 tracking-wider">Dates Exclusion (Holidays)</p>
                              <div className="relative">
                                 <AlertCircle className="absolute right-3 top-2.5 w-3 h-3 text-gray-400" />
