@@ -13,7 +13,8 @@
  * @package VibeBuy
  */
 
-// Prevent direct access.
+
+// Preent direct access.
 if (!defined('ABSPATH')) {
 	exit;
 }
