@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VibeBuy Lite 1.0.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vibebuy-order-connect-lite\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vibebuy-order-via-chat-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,7 +12,7 @@ msgstr ""
 "POT-Creation-Date: 2026-03-31T18:11:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
-"X-Domain: vibebuy-order-connect-lite\n"
+"X-Domain: vibebuy-order-via-chat-for-woocommerce\n"
 
 #: inc/class-vibebuy-admin.php:172
 msgid "Your Channels"
@@ -105,3 +105,4 @@ msgstr ""
 #: inc/integrations/class-vibebuy-wpml.php:43
 msgid "Order via Messaging"
 msgstr ""
+

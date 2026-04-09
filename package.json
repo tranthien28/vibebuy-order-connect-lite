@@ -1,5 +1,5 @@
 {
-  "name": "vibebuy-order-connect-lite",
+  "name": "vibebuy-order-via-chat-for-woocommerce",
   "version": "1.0.3",
   "description": "VibeBuy Lite React UI settings",
   "scripts": {
@@ -19,3 +19,4 @@
     "vite": "^5.1.4"
   }
 }
+

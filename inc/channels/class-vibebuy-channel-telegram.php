@@ -42,10 +42,10 @@ class VibeBuy_Channel_Telegram extends VibeBuy_Channel_Base {
 		$username = $settings['telegram_botUsername'] ?? '';
 
 		if ( empty( $token ) && empty( $username ) ) {
-			return __( 'Telegram Bot Token or Bot Username is required.', 'vibebuy-order-connect-lite' );
+			return __( 'Telegram Bot Token or Bot Username is required.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		if ( ! empty( $token ) && ! preg_match( '/^\d+:[A-Za-z0-9_-]{35,}$/', $token ) ) {
-			return __( 'Invalid Telegram Bot Token format.', 'vibebuy-order-connect-lite' );
+			return __( 'Invalid Telegram Bot Token format.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		return null;
 	}
@@ -91,3 +91,4 @@ class VibeBuy_Channel_Telegram extends VibeBuy_Channel_Base {
 		] );
 	}
 }
+

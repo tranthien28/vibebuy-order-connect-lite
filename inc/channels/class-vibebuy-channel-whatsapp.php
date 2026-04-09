@@ -37,12 +37,12 @@ class VibeBuy_Channel_WhatsApp extends VibeBuy_Channel_Base {
 	public function validate( array $settings ): ?string {
 		$number = $settings['whatsapp_number'] ?? '';
 		if ( empty( $number ) ) {
-			return __( 'WhatsApp number is required.', 'vibebuy-order-connect-lite' );
+			return __( 'WhatsApp number is required.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		// Strip spaces and check basic format
 		$cleaned = preg_replace( '/\s+/', '', $number );
 		if ( ! preg_match( '/^\+?[0-9]{9,15}$/', $cleaned ) ) {
-			return __( 'Invalid WhatsApp number format. Include country code (e.g. +84987654321).', 'vibebuy-order-connect-lite' );
+			return __( 'Invalid WhatsApp number format. Include country code (e.g. +84987654321).', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		return null;
 	}
@@ -72,3 +72,4 @@ class VibeBuy_Channel_WhatsApp extends VibeBuy_Channel_Base {
 		return new WP_Error( 'not_supported', 'WhatsApp server-to-server sending requires VibeBuy Pro.' );
 	}
 }
+

@@ -247,7 +247,7 @@ const HelpView = ({ onNavigate, initialSection }) => {
                   How to Override
                 </h4>
                 <p className="text-sm">
-                  Copy <code className="bg-white/50 px-1 rounded">plugins/vibebuy-order-connect-lite/templates/order-modal.php</code> <br/> 
+                  Copy <code className="bg-white/50 px-1 rounded">plugins/vibebuy-order-via-chat-for-woocommerce/templates/order-modal.php</code> <br/> 
                   to <code className="bg-white/50 px-1 rounded">themes/your-theme/vibebuy/order-modal.php</code>
                 </p>
               </div>
@@ -540,3 +540,4 @@ const HelpView = ({ onNavigate, initialSection }) => {
 };
 
 export default HelpView;
+

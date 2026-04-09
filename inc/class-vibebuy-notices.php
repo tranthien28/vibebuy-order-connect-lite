@@ -25,7 +25,7 @@ class VibeBuy_Notices {
 	public function __construct() {
 		$this->config = array(
 			'plugin_name'         => 'VibeBuy Lite',
-			'review_url'          => 'https://wordpress.org/support/plugin/vibebuy-order-connect-lite/reviews/#new-post',
+			'review_url'          => 'https://wordpress.org/support/plugin/vibebuy-order-via-chat-for-woocommerce/reviews/#new-post',
 			'option_name'         => 'vibebuy_review_dismissed',
 			'timestamp_option'    => 'vibebuy_install_timestamp',
 			'days_before_notice'  => 7, // Show notice after 7 days
@@ -67,12 +67,12 @@ class VibeBuy_Notices {
 		?>
 		<div class="notice notice-info is-dismissible" id="vibebuy-review-notice">
 			<p style="font-size: 14px; margin-bottom: 6px;">
-				<strong>💜 <?php echo esc_html( $this->config['plugin_name'] ); ?> - <?php esc_html_e( 'Rate our plugin', 'vibebuy-order-connect-lite' ); ?></strong>
+				<strong>💜 <?php echo esc_html( $this->config['plugin_name'] ); ?> - <?php esc_html_e( 'Rate our plugin', 'vibebuy-order-via-chat-for-woocommerce' ); ?></strong>
 			</p>
 			<p style="margin-top: 0;">
-				<?php esc_html_e( 'We work very hard on our plugin to help you improve your website, so you can sell more. Please support us by leaving feedback for our plugin.', 'vibebuy-order-connect-lite' ); ?> 
+				<?php esc_html_e( 'We work very hard on our plugin to help you improve your website, so you can sell more. Please support us by leaving feedback for our plugin.', 'vibebuy-order-via-chat-for-woocommerce' ); ?> 
 				<a href="<?php echo esc_url( $this->config['review_url'] ); ?>" target="_blank" style="font-weight: bold; text-decoration: underline;">
-					<?php esc_html_e( 'Write a review', 'vibebuy-order-connect-lite' ); ?>
+					<?php esc_html_e( 'Write a review', 'vibebuy-order-via-chat-for-woocommerce' ); ?>
 				</a>
 			</p>
 		</div>
@@ -107,3 +107,4 @@ class VibeBuy_Notices {
 		wp_die();
 	}
 }
+

@@ -85,8 +85,12 @@ class VibeBuy_DB {
 		// If failed, table might be missing or corrupted (common on localhost)
 		if ( false === $result ) {
 			self::create_table(); // Try to self-heal
-			// Retry once
-			$result = $wpdb->insert( $table_name, $insert_data, array( '%d', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s' ) );
+			// Retry once with correct format array (12 elements)
+			$result = $wpdb->insert(
+				$table_name,
+				$insert_data,
+				array( '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s' )
+			);
 		}
 
 		if ( $result !== false && ! vibebuy_is_pro() ) {

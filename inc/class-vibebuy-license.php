@@ -56,7 +56,7 @@ class VibeBuy_License
 		}
 
 		self::downgrade_to_lite();
-		$error_msg = isset($body['error']) ? $body['error'] : __('Invalid license key.', 'vibebuy-order-connect-lite');
+		$error_msg = isset($body['error']) ? $body['error'] : __('Invalid license key.', 'vibebuy-order-via-chat-for-woocommerce');
 		return new WP_Error('invalid_license', $error_msg);
 	}
 
@@ -96,3 +96,4 @@ class VibeBuy_License
 		return true;
 	}
 }
+

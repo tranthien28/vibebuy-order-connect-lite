@@ -74,11 +74,11 @@ abstract class VibeBuy_Channel_Base {
 	 */
 	protected function get_default_message( ?array $product ): string {
 		if ( ! $product ) {
-			return __( 'Hello, I want to inquire about your products.', 'vibebuy-order-connect-lite' );
+			return __( 'Hello, I want to inquire about your products.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		return sprintf(
 			/* translators: 1: product name, 2: product price, 3: product url */
-			__( 'Hello! I want to order: %1$s - Price: %2$s - Link: %3$s', 'vibebuy-order-connect-lite' ),
+			__( 'Hello! I want to order: %1$s - Price: %2$s - Link: %3$s', 'vibebuy-order-via-chat-for-woocommerce' ),
 			$product['name'] ?? '',
 			$product['price'] ?? '',
 			$product['url'] ?? ''
@@ -98,3 +98,4 @@ abstract class VibeBuy_Channel_Base {
 		return $settings[ $key ] ?? $default;
 	}
 }
+

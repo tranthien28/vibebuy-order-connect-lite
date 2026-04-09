@@ -38,8 +38,8 @@ class VibeBuy_WPML {
 
 		// Examples of items to translate
 		$strings = array(
-			'Chat URL'           => __( 'Chat URL', 'vibebuy-order-connect-lite' ),
-			'Order via Messaging' => __( 'Order via Messaging', 'vibebuy-order-connect-lite' ),
+			'Chat URL'           => __( 'Chat URL', 'vibebuy-order-via-chat-for-woocommerce' ),
+			'Order via Messaging' => __( 'Order via Messaging', 'vibebuy-order-via-chat-for-woocommerce' ),
 		);
 
 		foreach ( $strings as $name => $val ) {
@@ -60,3 +60,4 @@ class VibeBuy_WPML {
 	}
 
 }
+

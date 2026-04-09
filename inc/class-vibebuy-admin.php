@@ -76,7 +76,7 @@ class VibeBuy_Admin
 			'vibebuy-admin-js',
 			VIBEBUY_PLUGIN_URL . 'assets/js/admin.js',
 			array('wp-element'),
-			time(), // Use timestamp for dev; can be VIBEBUY_VERSION later
+			VIBEBUY_VERSION,
 			true
 		);
 
@@ -117,7 +117,7 @@ class VibeBuy_Admin
 		));
 
 		if (function_exists('wp_set_script_translations')) {
-			wp_set_script_translations('vibebuy-admin-js', 'vibebuy-order-connect-lite', VIBEBUY_PLUGIN_DIR . 'languages');
+			wp_set_script_translations('vibebuy-admin-js', 'vibebuy-order-via-chat-for-woocommerce', VIBEBUY_PLUGIN_DIR . 'languages');
 		}
 	}
 
@@ -135,29 +135,30 @@ class VibeBuy_Admin
 	private function get_i18n_strings()
 	{
 		return array(
-			'yourChannels' => __('Your Channels', 'vibebuy-order-connect-lite'),
-			'channelsSubtitle' => __('Configure each channel independently.', 'vibebuy-order-connect-lite'),
-			'configure' => __('Configure', 'vibebuy-order-connect-lite'),
-			'saveAll' => __('Save All Settings', 'vibebuy-order-connect-lite'),
-			'saving' => __('Saving...', 'vibebuy-order-connect-lite'),
-			'saved' => __('Settings saved!', 'vibebuy-order-connect-lite'),
-			'saveFailed' => __('Save failed. Please try again.', 'vibebuy-order-connect-lite'),
-			'widgetOn' => __('Widget ON', 'vibebuy-order-connect-lite'),
-			'widgetOff' => __('Widget OFF', 'vibebuy-order-connect-lite'),
-			'upgradeBtn' => __('Upgrade to Pro →', 'vibebuy-order-connect-lite'),
-			'proFeature' => __('Available in Pro', 'vibebuy-order-connect-lite'),
-			'unlockPro' => __('Unlock with VibeBuy Pro', 'vibebuy-order-connect-lite'),
-			'proLite' => __('PRO', 'vibebuy-order-connect-lite'),
-			'config' => __('Config', 'vibebuy-order-connect-lite'),
-			'appearance' => __('Appearance', 'vibebuy-order-connect-lite'),
-			'displayRules' => __('Display Rules', 'vibebuy-order-connect-lite'),
-			'back' => __('← Back', 'vibebuy-order-connect-lite'),
-			'next' => __('Next →', 'vibebuy-order-connect-lite'),
-			'save' => __('Save', 'vibebuy-order-connect-lite'),
-			'backToChannels' => __('← Back to Channels', 'vibebuy-order-connect-lite'),
-			'branding' => __('Branding Settings', 'vibebuy-order-connect-lite'),
-			'removeBranding' => __('Hide "Powered by VibeBuy" label', 'vibebuy-order-connect-lite'),
-			'createOrder' => __('Create WooCommerce Order', 'vibebuy-order-connect-lite'),
+			'yourChannels' => __('Your Channels', 'vibebuy-order-via-chat-for-woocommerce'),
+			'channelsSubtitle' => __('Configure each channel independently.', 'vibebuy-order-via-chat-for-woocommerce'),
+			'configure' => __('Configure', 'vibebuy-order-via-chat-for-woocommerce'),
+			'saveAll' => __('Save All Settings', 'vibebuy-order-via-chat-for-woocommerce'),
+			'saving' => __('Saving...', 'vibebuy-order-via-chat-for-woocommerce'),
+			'saved' => __('Settings saved!', 'vibebuy-order-via-chat-for-woocommerce'),
+			'saveFailed' => __('Save failed. Please try again.', 'vibebuy-order-via-chat-for-woocommerce'),
+			'widgetOn' => __('Widget ON', 'vibebuy-order-via-chat-for-woocommerce'),
+			'widgetOff' => __('Widget OFF', 'vibebuy-order-via-chat-for-woocommerce'),
+			'upgradeBtn' => __('Upgrade to Pro →', 'vibebuy-order-via-chat-for-woocommerce'),
+			'proFeature' => __('Available in Pro', 'vibebuy-order-via-chat-for-woocommerce'),
+			'unlockPro' => __('Unlock with VibeBuy Pro', 'vibebuy-order-via-chat-for-woocommerce'),
+			'proLite' => __('PRO', 'vibebuy-order-via-chat-for-woocommerce'),
+			'config' => __('Config', 'vibebuy-order-via-chat-for-woocommerce'),
+			'appearance' => __('Appearance', 'vibebuy-order-via-chat-for-woocommerce'),
+			'displayRules' => __('Display Rules', 'vibebuy-order-via-chat-for-woocommerce'),
+			'back' => __('← Back', 'vibebuy-order-via-chat-for-woocommerce'),
+			'next' => __('Next →', 'vibebuy-order-via-chat-for-woocommerce'),
+			'save' => __('Save', 'vibebuy-order-via-chat-for-woocommerce'),
+			'backToChannels' => __('← Back to Channels', 'vibebuy-order-via-chat-for-woocommerce'),
+			'branding' => __('Branding Settings', 'vibebuy-order-via-chat-for-woocommerce'),
+			'removeBranding' => __('Hide "Powered by VibeBuy" label', 'vibebuy-order-via-chat-for-woocommerce'),
+			'createOrder' => __('Create WooCommerce Order', 'vibebuy-order-via-chat-for-woocommerce'),
 		);
 	}
 }
+

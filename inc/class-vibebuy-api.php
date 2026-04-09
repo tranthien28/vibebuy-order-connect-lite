@@ -232,7 +232,7 @@ class VibeBuy_API
 
 		return rest_ensure_response(array(
 			'success' => true,
-			'message' => __('Settings saved successfully.', 'vibebuy-order-connect-lite'),
+			'message' => __('Settings saved successfully.', 'vibebuy-order-via-chat-for-woocommerce'),
 			'data' => $settings,
 		));
 	}
@@ -290,7 +290,7 @@ class VibeBuy_API
 	{
 		$id = $request->get_param('id');
 		if (!$id) {
-			return new WP_Error('missing_id', __('ID is required.', 'vibebuy-order-connect-lite'), array('status' => 400));
+			return new WP_Error('missing_id', __('ID is required.', 'vibebuy-order-via-chat-for-woocommerce'), array('status' => 400));
 		}
 
 		global $wpdb;
@@ -307,7 +307,7 @@ class VibeBuy_API
 		}
 
 		if (!$item) {
-			return new WP_Error('not_found', __('Connection not found.', 'vibebuy-order-connect-lite'), array('status' => 404));
+			return new WP_Error('not_found', __('Connection not found.', 'vibebuy-order-via-chat-for-woocommerce'), array('status' => 404));
 		}
 
 		// Hydrate details
@@ -356,7 +356,7 @@ class VibeBuy_API
 
 		// Basic validation
 		if (empty($params['customer_name'])) {
-			return new WP_Error('missing_fields', __('Name is required.', 'vibebuy-order-connect-lite'), array('status' => 400));
+			return new WP_Error('missing_fields', __('Name is required.', 'vibebuy-order-via-chat-for-woocommerce'), array('status' => 400));
 		}
 
 		// Detect country via WooCommerce Geolocation if available
@@ -392,7 +392,7 @@ class VibeBuy_API
 		$result = VibeBuy_DB::save_connection($data);
 
 		if (!$result) {
-			return new WP_Error('save_failed', __('Failed to save inquiry.', 'vibebuy-order-connect-lite'), array('status' => 500));
+			return new WP_Error('save_failed', __('Failed to save inquiry.', 'vibebuy-order-via-chat-for-woocommerce'), array('status' => 500));
 		}
 
 		// Trigger notifications server-side for ALL active channels
@@ -531,7 +531,7 @@ class VibeBuy_API
 
 			// Add Note
 			if (!empty($data['customer_message'])) {
-				$order->add_order_note(__('Inquiry Message: ', 'vibebuy-order-connect-lite') . sanitize_textarea_field($data['customer_message']));
+				$order->add_order_note(__('Inquiry Message: ', 'vibebuy-order-via-chat-for-woocommerce') . sanitize_textarea_field($data['customer_message']));
 			}
 
 			// Set Status
@@ -571,7 +571,7 @@ class VibeBuy_API
 		$license_key = $request->get_param('license_key');
 
 		if (empty($license_key)) {
-			return new WP_Error('missing_key', __('License key is required.', 'vibebuy-order-connect-lite'), array('status' => 400));
+			return new WP_Error('missing_key', __('License key is required.', 'vibebuy-order-via-chat-for-woocommerce'), array('status' => 400));
 		}
 
 		$result = VibeBuy_License::check_license($license_key);
@@ -667,3 +667,4 @@ class VibeBuy_API
 		return rest_ensure_response($data);
 	}
 }
+

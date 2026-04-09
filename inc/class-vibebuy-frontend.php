@@ -92,7 +92,7 @@ class VibeBuy_Frontend {
 			'vibebuy-widget-js',
 			VIBEBUY_PLUGIN_URL . 'assets/js/widget.js',
 			array(),
-			time(), // Use timestamp for dev; can be VIBEBUY_VERSION later
+			VIBEBUY_VERSION,
 			true
 		);
 
@@ -106,10 +106,6 @@ class VibeBuy_Frontend {
 			array(),
 			VIBEBUY_VERSION
 		);
-
-		// Load static CSS directly from assets (no build required)
-		$css_path = VIBEBUY_PLUGIN_DIR . 'assets/css/index.css';
-		$css_ver  = file_exists( $css_path ) ? filemtime( $css_path ) : VIBEBUY_VERSION;
 
 		wp_enqueue_style(
 			'vibebuy-widget-static-css',
@@ -167,27 +163,27 @@ class VibeBuy_Frontend {
 			'currentUser'        => $user_data,
 			'submittedInquiries' => VibeBuy_DB::get_user_submission_map( get_current_user_id() ),
 			'strings'            => array(
-				'alreadyRequested'  => __( 'Already Requested', 'vibebuy-order-connect-lite' ),
-				'orderViaWhatsApp'  => __( 'Order via WhatsApp', 'vibebuy-order-connect-lite' ),
-				'orderVia'          => __( 'Order via', 'vibebuy-order-connect-lite' ),
-				'getQuote'          => __( 'Get a Quote', 'vibebuy-order-connect-lite' ),
-				'firstName'         => __( 'First Name', 'vibebuy-order-connect-lite' ),
-				'lastName'          => __( 'Last Name', 'vibebuy-order-connect-lite' ),
-				'email'             => __( 'Email Address', 'vibebuy-order-connect-lite' ),
-				'phone'             => __( 'Phone Number', 'vibebuy-order-connect-lite' ),
-				'note'              => __( 'Note', 'vibebuy-order-connect-lite' ),
-				'sendRequest'       => __( 'Connect & Order', 'vibebuy-order-connect-lite' ),
-				'successTitle'      => __( 'Success!', 'vibebuy-order-connect-lite' ),
-				'successDescription'=> __( 'Your request has been sent successfully.', 'vibebuy-order-connect-lite' ),
-				'enterYourName'     => __( 'Enter your name', 'vibebuy-order-connect-lite' ),
-				'yourEmail'         => __( 'your@email.com', 'vibebuy-order-connect-lite' ),
-				'hiInterested'      => __( 'Hi, I\'m interested in this product...', 'vibebuy-order-connect-lite' ),
-				'inquiringAbout'    => __( 'Inquiring about:', 'vibebuy-order-connect-lite' ),
-				'fillDetails'       => __( 'Please fill in your details to stay connected.', 'vibebuy-order-connect-lite' ),
-				'selectOptions'     => __( 'Select Options', 'vibebuy-order-connect-lite' ),
-				'outOfStock'        => __( 'Out of Stock', 'vibebuy-order-connect-lite' ),
-				'poweredBy'         => __( 'Powered by', 'vibebuy-order-connect-lite' ),
-				'quantity'          => __( 'Quantity', 'vibebuy-order-connect-lite' ),
+				'alreadyRequested'  => __( 'Already Requested', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'orderViaWhatsApp'  => __( 'Order via WhatsApp', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'orderVia'          => __( 'Order via', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'getQuote'          => __( 'Get a Quote', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'firstName'         => __( 'First Name', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'lastName'          => __( 'Last Name', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'email'             => __( 'Email Address', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'phone'             => __( 'Phone Number', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'note'              => __( 'Note', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'sendRequest'       => __( 'Connect & Order', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'successTitle'      => __( 'Success!', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'successDescription'=> __( 'Your request has been sent successfully.', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'enterYourName'     => __( 'Enter your name', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'yourEmail'         => __( 'your@email.com', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'hiInterested'      => __( 'Hi, I\'m interested in this product...', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'inquiringAbout'    => __( 'Inquiring about:', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'fillDetails'       => __( 'Please fill in your details to stay connected.', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'selectOptions'     => __( 'Select Options', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'outOfStock'        => __( 'Out of Stock', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'poweredBy'         => __( 'Powered by', 'vibebuy-order-via-chat-for-woocommerce' ),
+				'quantity'          => __( 'Quantity', 'vibebuy-order-via-chat-for-woocommerce' ),
 			),
 		);
 
@@ -207,3 +203,4 @@ class VibeBuy_Frontend {
 		echo '<div id="vibebuy-widget-root"></div>';
 	}
 }
+

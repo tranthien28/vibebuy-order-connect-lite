@@ -14,9 +14,27 @@
  */
 
 
-// Preent direct access.
+// Prevent direct access.
 if (!defined('ABSPATH')) {
 	exit;
+}
+
+/**
+ * Check if WooCommerce is active.
+ */
+function vibebuy_check_woocommerce_dependency()
+{
+	if (!class_exists('WooCommerce')) {
+		add_action('admin_notices', function () {
+?>
+			<div class="notice notice-error is-dismissible">
+				<p><?php _e('VibeBuy requires <strong>WooCommerce</strong> to be installed and active.', 'vibebuy-order-via-chat-for-woocommerce'); ?></p>
+			</div>
+<?php
+		});
+		return false;
+	}
+	return true;
 }
 
 // Define Constants.
@@ -44,6 +62,10 @@ require_once VIBEBUY_PLUGIN_DIR . 'inc/class-vibebuy-license.php';
  */
 function vibebuy_init()
 {
+	if (!vibebuy_check_woocommerce_dependency()) {
+		return;
+	}
+
 	// Register core messaging channels.
 	VibeBuy_Channel_Registry::register(new VibeBuy_Channel_WhatsApp());
 	VibeBuy_Channel_Registry::register(new VibeBuy_Channel_Telegram());

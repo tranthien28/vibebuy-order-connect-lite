@@ -43,10 +43,10 @@ class VibeBuy_Channel_Discord extends VibeBuy_Channel_Base {
 		$url = $settings['discord_webhookUrl'] ?? '';
 
 		if ( empty( $url ) ) {
-			return __( 'Discord Webhook URL is required.', 'vibebuy-order-connect-lite' );
+			return __( 'Discord Webhook URL is required.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		if ( ! filter_var( $url, FILTER_VALIDATE_URL ) || strpos( $url, 'discord.com/api/webhooks/' ) === false ) {
-			return __( 'Invalid Discord Webhook URL.', 'vibebuy-order-connect-lite' );
+			return __( 'Invalid Discord Webhook URL.', 'vibebuy-order-via-chat-for-woocommerce' );
 		}
 		return null;
 	}
@@ -80,3 +80,4 @@ class VibeBuy_Channel_Discord extends VibeBuy_Channel_Base {
 		] );
 	}
 }
+
